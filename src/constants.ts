@@ -7,3 +7,4 @@ export const MAX_BOOK_IMAGE_URL_LENGTH = 512;
 // Chapters
 export const MAX_CHAPTERS_PER_PAGE = 100;
 export const MAX_CHAPTER_TITLE_LENGTH = 256;
+export const MAX_CHAPTER_CONTENT_LENGTH = 1_000_000;

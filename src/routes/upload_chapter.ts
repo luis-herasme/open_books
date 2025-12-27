@@ -7,12 +7,16 @@ import * as HttpStatusCodes from 'stoker/http-status-codes';
 import { createChapter } from '../db/repository.ts';
 import { ErrorMessage } from '../error_message_schema.ts';
 import { apiKeyRequired } from '../api_key_required_middleware.ts';
-import { MAX_CHAPTERS_PER_BOOK, MAX_CHAPTER_TITLE_LENGTH } from '../constants.ts';
+import {
+  MAX_CHAPTERS_PER_BOOK,
+  MAX_CHAPTER_TITLE_LENGTH,
+  MAX_CHAPTER_CONTENT_LENGTH
+} from '../constants.ts';
 
 const UploadChapterInput = z.object({
   book_id: z.uuid(),
   title: z.string().min(1).max(MAX_CHAPTER_TITLE_LENGTH),
-  content: z.string().min(1),
+  content: z.string().min(1).max(MAX_CHAPTER_CONTENT_LENGTH),
   number: z.number().min(1).int().max(MAX_CHAPTERS_PER_BOOK)
 });
 

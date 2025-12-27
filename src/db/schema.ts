@@ -1,18 +1,10 @@
-import {
-  uuid,
-  pgTable,
-  varchar,
-  text,
-  timestamp,
-  integer,
-  unique,
-  index
-} from 'drizzle-orm/pg-core';
+import { uuid, pgTable, varchar, timestamp, integer, unique, index } from 'drizzle-orm/pg-core';
 
 import {
-  MAX_CHAPTER_TITLE_LENGTH,
   MAX_BOOK_TITLE_LENGTH,
-  MAX_BOOK_IMAGE_URL_LENGTH
+  MAX_CHAPTER_TITLE_LENGTH,
+  MAX_BOOK_IMAGE_URL_LENGTH,
+  MAX_CHAPTER_CONTENT_LENGTH
 } from '../constants.ts';
 
 export const booksTable = pgTable(
@@ -40,7 +32,7 @@ export const chaptersTable = pgTable(
       .references(() => booksTable.id, { onDelete: 'cascade' }),
     number: integer().notNull(),
     title: varchar({ length: MAX_CHAPTER_TITLE_LENGTH }).notNull(),
-    content: text().notNull(),
+    content: varchar({ length: MAX_CHAPTER_CONTENT_LENGTH }).notNull(),
 
     created_at: timestamp().notNull().defaultNow(),
     updated_at: timestamp().notNull().defaultNow()
