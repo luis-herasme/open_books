@@ -10,8 +10,8 @@ import { apiKeyRequired } from '../api_key_required_middleware.ts';
 
 const UploadChapterInput = z.object({
   book_id: z.uuid(),
-  title: z.string().nonempty(),
-  content: z.string().nonempty(),
+  title: z.string().min(1),
+  content: z.string().min(1),
   number: z.number().nonnegative().int()
 });
 
@@ -37,7 +37,6 @@ export const uploadChapterHandler: RouteHandler<typeof uploadChapterRoute> = asy
 
   const chapter = await createChapter({
     book_id: input.book_id,
-    title: input.title,
     content: input.content,
     number: input.number
   });

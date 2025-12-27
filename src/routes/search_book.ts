@@ -7,7 +7,7 @@ import * as HttpStatusCodes from 'stoker/http-status-codes';
 import { getBooksByTitle } from '../db/repository.ts';
 
 const SearchBookInput = z.object({
-  term: z.string().nonempty(),
+  term: z.string().min(1),
   offset: z.coerce.number().nonnegative().int().default(0),
   limit: z.coerce.number().nonnegative().int().max(100).default(10)
 });
@@ -16,7 +16,7 @@ const SearchBookOutput = z.object({
   books: z.array(
     z.object({
       book_id: z.uuid(),
-      book_title: z.string().nonempty(),
+      book_title: z.string().min(1),
       image_url: z.string().nullable()
     })
   ),

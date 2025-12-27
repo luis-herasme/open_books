@@ -13,7 +13,7 @@ const GetChapterInput = z.object({
 
 const GetChapterOutput = z.object({
   book_id: z.uuid(),
-  content: z.string().nonempty()
+  content: z.string().min(1)
 });
 
 export const getChapterRoute = createRoute({

@@ -9,8 +9,8 @@ import { ErrorMessage } from '../error_message_schema.ts';
 import { apiKeyRequired } from '../api_key_required_middleware.ts';
 
 const UploadBookInput = z.object({
-  title: z.string().nonempty(),
-  image_url: z.string().nonempty().optional()
+  title: z.string().min(1),
+  image_url: z.string().min(1).optional()
 });
 
 const UploadBookOutput = z.object({
