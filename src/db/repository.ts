@@ -76,7 +76,13 @@ export async function getBooksByTitle({
   return db.transaction(async (tx) => {
     const whereClause = ilike(booksTable.title, `%${term}%`);
 
-    const books = await tx.select().from(booksTable).where(whereClause).offset(offset).limit(limit);
+    const books = await tx
+      .select()
+      .from(booksTable)
+      .where(whereClause)
+      .orderBy(asc(booksTable.title))
+      .offset(offset)
+      .limit(limit);
 
     const [booksCount] = await tx.select({ count: count() }).from(booksTable).where(whereClause);
 
