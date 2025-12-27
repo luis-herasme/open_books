@@ -25,7 +25,7 @@ export const uploadBookRoute = createRoute({
     body: jsonContent(UploadBookInput, 'Upload Book Request')
   },
   responses: {
-    [HttpStatusCodes.OK]: jsonContent(UploadBookOutput, 'Book identifier'),
+    [HttpStatusCodes.CREATED]: jsonContent(UploadBookOutput, 'Book identifier'),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(ErrorMessage, 'Unauthorized')
   }
 });
@@ -38,5 +38,10 @@ export const uploadBookHandler: RouteHandler<typeof uploadBookRoute> = async (c)
     image_url: input.image_url
   });
 
-  return c.json({ book_id: book.id }, HttpStatusCodes.OK);
+  return c.json(
+    {
+      book_id: book.id
+    },
+    HttpStatusCodes.CREATED
+  );
 };
