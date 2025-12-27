@@ -31,7 +31,7 @@ export const chaptersTable = pgTable(
     id: uuid().primaryKey().defaultRandom(),
     book_id: uuid()
       .notNull()
-      .references(() => booksTable.id),
+      .references(() => booksTable.id, { onDelete: 'cascade' }),
     number: integer().notNull(),
     title: varchar({ length: 256 }).notNull(),
     content: text().notNull(),
