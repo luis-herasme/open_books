@@ -10,7 +10,7 @@ import { apiKeyRequired } from '../api_key_required_middleware.ts';
 
 const UploadBookInput = z.object({
   title: z.string().min(1),
-  image_url: z.string().min(1).optional()
+  image_url: z.url().optional()
 });
 
 const UploadBookOutput = z.object({
