@@ -25,8 +25,22 @@ export async function getChapterById(chapter_id: string): Promise<ChapterSelect 
   return chapter;
 }
 
-export async function getChaptersByBookId(book_id: string): Promise<ChapterSelect[]> {
-  return await db.select().from(chaptersTable).where(eq(chaptersTable.book_id, book_id)).execute();
+export async function getChaptersByBookId({
+  book_id,
+  offset,
+  limit
+}: {
+  book_id: string;
+  offset: number;
+  limit: number;
+}): Promise<ChapterSelect[]> {
+  return await db
+    .select()
+    .from(chaptersTable)
+    .where(eq(chaptersTable.book_id, book_id))
+    .limit(limit)
+    .offset(offset)
+    .execute();
 }
 
 export async function getBooksByTitle({

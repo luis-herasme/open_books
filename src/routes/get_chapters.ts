@@ -34,7 +34,12 @@ export const getChaptersRoute = createRoute({
 
 export const getChaptersHandler: RouteHandler<typeof getChaptersRoute> = async (c) => {
   const input = await c.req.valid('query');
-  const chapters = await getChaptersByBookId(input.book_id);
+
+  const chapters = await getChaptersByBookId({
+    book_id: input.book_id,
+    offset: input.offset,
+    limit: input.limit
+  });
 
   return c.json(
     {
