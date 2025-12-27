@@ -33,9 +33,7 @@ export const chaptersTable = pgTable(
       .notNull()
       .references(() => booksTable.id),
     number: integer().notNull(),
-    title: varchar({ length: 256 }).notNull(),
     content: text().notNull(),
-    image_url: varchar({ length: 512 }),
 
     created_at: timestamp().notNull().defaultNow(),
     updated_at: timestamp().notNull().defaultNow()
