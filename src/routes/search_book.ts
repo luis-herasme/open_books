@@ -8,8 +8,8 @@ import { getBooksByTitle } from '../db/repository.ts';
 
 const SearchBookInput = z.object({
   term: z.string().min(1),
-  offset: z.coerce.number().nonnegative().int().default(0),
-  limit: z.coerce.number().nonnegative().int().max(100).default(10)
+  offset: z.coerce.number().min(0).int().default(0),
+  limit: z.coerce.number().min(1).max(100).default(10)
 });
 
 const SearchBookOutput = z.object({
@@ -20,7 +20,7 @@ const SearchBookOutput = z.object({
       image_url: z.url().nullable()
     })
   ),
-  count: z.number().nonnegative().int()
+  count: z.number().min(0).int()
 });
 
 export const searchBookRoute = createRoute({

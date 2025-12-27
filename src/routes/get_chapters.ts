@@ -8,8 +8,8 @@ import { getChaptersByBookId } from '../db/repository.ts';
 
 const GetChaptersInput = z.object({
   book_id: z.uuid(),
-  offset: z.coerce.number().nonnegative().int().default(0),
-  limit: z.coerce.number().nonnegative().int().max(100).default(10)
+  offset: z.coerce.number().min(0).int().default(0),
+  limit: z.coerce.number().min(1).max(100).default(10)
 });
 
 const GetChaptersOutput = z.object({
@@ -19,7 +19,7 @@ const GetChaptersOutput = z.object({
       chapter_title: z.string().min(1)
     })
   ),
-  count: z.number().nonnegative().int()
+  count: z.number().min(0).int()
 });
 
 export const getChaptersRoute = createRoute({
