@@ -9,7 +9,7 @@ import { getChaptersByBookId } from '../db/repository.ts';
 const GetChaptersInput = z.object({
   book_id: z.uuid(),
   offset: z.coerce.number().nonnegative().int().default(0),
-  limit: z.coerce.number().nonnegative().int().default(10)
+  limit: z.coerce.number().nonnegative().int().max(100).default(10)
 });
 
 const GetChaptersOutput = z.object({

@@ -9,7 +9,7 @@ import { getBooksByTitle } from '../db/repository.ts';
 const SearchBookInput = z.object({
   term: z.string().nonempty(),
   offset: z.coerce.number().nonnegative().int().default(0),
-  limit: z.coerce.number().nonnegative().int().default(10)
+  limit: z.coerce.number().nonnegative().int().max(100).default(10)
 });
 
 const SearchBookOutput = z.object({
