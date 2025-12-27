@@ -33,7 +33,7 @@ app.doc('/openapi', {
 });
 
 app.get(
-  '/documentation',
+  '/',
   Scalar({
     title: 'Open Books API Documentation',
     sources: [
