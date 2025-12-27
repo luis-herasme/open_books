@@ -4,6 +4,8 @@ import { OpenAPIHono } from '@hono/zod-openapi';
 import { Scalar } from '@scalar/hono-api-reference';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 
+import { env } from './env.ts';
+
 import * as getChapter from './routes/get_chapter.ts';
 import * as getChapters from './routes/get_chapters.ts';
 import * as uploadChapter from './routes/upload_chapter.ts';
@@ -53,4 +55,7 @@ app.onError((error, c) => {
   );
 });
 
-serve(app);
+serve({
+  fetch: app.fetch,
+  port: env.PORT
+});
