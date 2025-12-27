@@ -27,7 +27,7 @@ export const uploadChapterRoute = createRoute({
     body: jsonContent(UploadChapterInput, 'Upload Chapter Request')
   },
   responses: {
-    [HttpStatusCodes.OK]: jsonContent(UploadChapterOutput, 'Chapter identifier'),
+    [HttpStatusCodes.CREATED]: jsonContent(UploadChapterOutput, 'Chapter identifier'),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(ErrorMessage, 'Unauthorized')
   }
 });
@@ -42,5 +42,10 @@ export const uploadChapterHandler: RouteHandler<typeof uploadChapterRoute> = asy
     number: input.number
   });
 
-  return c.json({ chapter_id: chapter.id }, HttpStatusCodes.OK);
+  return c.json(
+    {
+      chapter_id: chapter.id
+    },
+    HttpStatusCodes.CREATED
+  );
 };
