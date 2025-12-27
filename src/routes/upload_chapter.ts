@@ -37,6 +37,7 @@ export const uploadChapterHandler: RouteHandler<typeof uploadChapterRoute> = asy
 
   const chapter = await createChapter({
     book_id: input.book_id,
+    title: input.title,
     content: input.content,
     number: input.number
   });

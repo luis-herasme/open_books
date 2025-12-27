@@ -15,7 +15,8 @@ const GetChaptersInput = z.object({
 const GetChaptersOutput = z.object({
   chapters: z.array(
     z.object({
-      chapter_id: z.uuid()
+      chapter_id: z.uuid(),
+      chapter_title: z.string().min(1)
     })
   )
 });
@@ -43,7 +44,8 @@ export const getChaptersHandler: RouteHandler<typeof getChaptersRoute> = async (
   return c.json(
     {
       chapters: chapters.map((chapter) => ({
-        chapter_id: chapter.id
+        chapter_id: chapter.id,
+        chapter_title: chapter.title
       }))
     },
     HttpStatusCodes.OK
