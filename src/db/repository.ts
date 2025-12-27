@@ -1,4 +1,4 @@
-import { Result } from '../result.ts';
+import { Result } from '../lib/result.ts';
 import { db } from './index.ts';
 import {
   chaptersTable,

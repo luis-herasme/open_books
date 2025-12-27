@@ -5,7 +5,7 @@ import type { RouteHandler } from '@hono/zod-openapi';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 
 import { getChapterById } from '../db/repository.ts';
-import { ErrorMessage } from '../error_message_schema.ts';
+import { ErrorMessage } from '../lib/error_message_schema.ts';
 
 const GetChapterInput = z.object({
   chapter_id: z.uuid()

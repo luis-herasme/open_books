@@ -5,8 +5,8 @@ import type { RouteHandler } from '@hono/zod-openapi';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 
 import { createChapter } from '../db/repository.ts';
-import { ErrorMessage } from '../error_message_schema.ts';
-import { apiKeyRequired } from '../api_key_required_middleware.ts';
+import { ErrorMessage } from '../lib/error_message_schema.ts';
+import { apiKeyRequired } from '../lib/api_key_required_middleware.ts';
 import {
   MAX_CHAPTERS_PER_BOOK,
   MAX_CHAPTER_TITLE_LENGTH,

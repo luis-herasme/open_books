@@ -6,7 +6,7 @@ import * as HttpStatusCodes from 'stoker/http-status-codes';
 
 import { MAX_CHAPTERS_PER_PAGE } from '../constants.ts';
 import { getChaptersByBookId } from '../db/repository.ts';
-import { ErrorMessage } from '../error_message_schema.ts';
+import { ErrorMessage } from '../lib/error_message_schema.ts';
 
 const GetChaptersInput = z.object({
   book_id: z.uuid(),

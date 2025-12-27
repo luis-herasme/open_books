@@ -2,7 +2,7 @@ import { createMiddleware } from 'hono/factory';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import { timingSafeEqual } from 'crypto';
 
-import { env } from './env.ts';
+import { env } from '../env.ts';
 
 /**
  * Performs a constant-time comparison of two strings to prevent timing attacks.

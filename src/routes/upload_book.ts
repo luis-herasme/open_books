@@ -5,8 +5,8 @@ import type { RouteHandler } from '@hono/zod-openapi';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 
 import { createBook } from '../db/repository.ts';
-import { ErrorMessage } from '../error_message_schema.ts';
-import { apiKeyRequired } from '../api_key_required_middleware.ts';
+import { ErrorMessage } from '../lib/error_message_schema.ts';
+import { apiKeyRequired } from '../lib/api_key_required_middleware.ts';
 import { MAX_BOOK_TITLE_LENGTH, MAX_BOOK_IMAGE_URL_LENGTH } from '../constants.ts';
 
 const UploadBookInput = z.object({
