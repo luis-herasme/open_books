@@ -7,10 +7,11 @@ import * as HttpStatusCodes from 'stoker/http-status-codes';
 import { createBook } from '../db/repository.ts';
 import { ErrorMessage } from '../error_message_schema.ts';
 import { apiKeyRequired } from '../api_key_required_middleware.ts';
+import { MAX_BOOK_TITLE_LENGTH, MAX_BOOK_IMAGE_URL_LENGTH } from '../constants.ts';
 
 const UploadBookInput = z.object({
-  title: z.string().min(1),
-  image_url: z.url().optional()
+  title: z.string().min(1).max(MAX_BOOK_TITLE_LENGTH),
+  image_url: z.url().max(MAX_BOOK_IMAGE_URL_LENGTH).optional()
 });
 
 const UploadBookOutput = z.object({

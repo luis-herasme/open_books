@@ -5,13 +5,13 @@ import type { RouteHandler } from '@hono/zod-openapi';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 
 import { createChapter } from '../db/repository.ts';
-import { MAX_CHAPTERS_PER_BOOK } from '../constants.ts';
 import { ErrorMessage } from '../error_message_schema.ts';
 import { apiKeyRequired } from '../api_key_required_middleware.ts';
+import { MAX_CHAPTERS_PER_BOOK, MAX_CHAPTER_TITLE_LENGTH } from '../constants.ts';
 
 const UploadChapterInput = z.object({
   book_id: z.uuid(),
-  title: z.string().min(1),
+  title: z.string().min(1).max(MAX_CHAPTER_TITLE_LENGTH),
   content: z.string().min(1),
   number: z.number().min(1).int().max(MAX_CHAPTERS_PER_BOOK)
 });
