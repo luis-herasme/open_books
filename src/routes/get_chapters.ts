@@ -1,0 +1,48 @@
+import { z } from '@hono/zod-openapi';
+import { createRoute } from '@hono/zod-openapi';
+import { jsonContent } from 'stoker/openapi/helpers';
+import type { RouteHandler } from '@hono/zod-openapi';
+import * as HttpStatusCodes from 'stoker/http-status-codes';
+
+import { getChaptersByBookId } from '../db/repository.ts';
+
+const GetChaptersInput = z.object({
+  book_id: z.string().nonempty(),
+  offset: z.coerce.number().nonnegative().int().default(0),
+  limit: z.coerce.number().nonnegative().int().default(10)
+});
+
+const GetChaptersOutput = z.object({
+  chapters: z.array(
+    z.object({
+      chapter_id: z.string().nonempty(),
+      chapter_title: z.string().nonempty()
+    })
+  )
+});
+
+export const getChaptersRoute = createRoute({
+  method: 'get',
+  path: '/chapters',
+  request: {
+    query: GetChaptersInput
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(GetChaptersOutput, 'Chapters List')
+  }
+});
+
+export const getChaptersHandler: RouteHandler<typeof getChaptersRoute> = async (c) => {
+  const input = await c.req.valid('query');
+  const chapters = await getChaptersByBookId(input.book_id);
+
+  return c.json(
+    {
+      chapters: chapters.map((chapter) => ({
+        chapter_id: chapter.id,
+        chapter_title: chapter.title
+      }))
+    },
+    HttpStatusCodes.OK
+  );
+};
