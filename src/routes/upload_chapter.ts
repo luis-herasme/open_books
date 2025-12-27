@@ -5,10 +5,9 @@ import type { RouteHandler } from '@hono/zod-openapi';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 
 import { createChapter } from '../db/repository.ts';
+import { MAX_CHAPTERS_PER_BOOK } from '../constants.ts';
 import { ErrorMessage } from '../error_message_schema.ts';
 import { apiKeyRequired } from '../api_key_required_middleware.ts';
-
-const MAX_CHAPTERS_PER_BOOK = 10_000;
 
 const UploadChapterInput = z.object({
   book_id: z.uuid(),

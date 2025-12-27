@@ -9,12 +9,18 @@ import {
   index
 } from 'drizzle-orm/pg-core';
 
+import {
+  MAX_CHAPTER_TITLE_LENGTH,
+  MAX_BOOK_TITLE_LENGTH,
+  MAX_BOOK_IMAGE_URL_LENGTH
+} from '../constants.ts';
+
 export const booksTable = pgTable(
   'books',
   {
     id: uuid().primaryKey().defaultRandom(),
-    title: varchar({ length: 256 }).notNull(),
-    image_url: varchar({ length: 512 }),
+    title: varchar({ length: MAX_BOOK_TITLE_LENGTH }).notNull(),
+    image_url: varchar({ length: MAX_BOOK_IMAGE_URL_LENGTH }),
 
     created_at: timestamp().notNull().defaultNow(),
     updated_at: timestamp().notNull().defaultNow()
@@ -33,7 +39,7 @@ export const chaptersTable = pgTable(
       .notNull()
       .references(() => booksTable.id, { onDelete: 'cascade' }),
     number: integer().notNull(),
-    title: varchar({ length: 256 }).notNull(),
+    title: varchar({ length: MAX_CHAPTER_TITLE_LENGTH }).notNull(),
     content: text().notNull(),
 
     created_at: timestamp().notNull().defaultNow(),

@@ -4,12 +4,13 @@ import { jsonContent } from 'stoker/openapi/helpers';
 import type { RouteHandler } from '@hono/zod-openapi';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 
+import { MAX_BOOKS_PER_PAGE } from '../constants.ts';
 import { getBooksByTitle } from '../db/repository.ts';
 
 const SearchBookInput = z.object({
   term: z.string().min(1),
   offset: z.coerce.number().min(0).int().default(0),
-  limit: z.coerce.number().min(1).max(100).default(10)
+  limit: z.coerce.number().min(1).max(MAX_BOOKS_PER_PAGE).default(10)
 });
 
 const SearchBookOutput = z.object({

@@ -4,12 +4,13 @@ import { jsonContent } from 'stoker/openapi/helpers';
 import type { RouteHandler } from '@hono/zod-openapi';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 
+import { MAX_CHAPTERS_PER_PAGE } from '../constants.ts';
 import { getChaptersByBookId } from '../db/repository.ts';
 
 const GetChaptersInput = z.object({
   book_id: z.uuid(),
   offset: z.coerce.number().min(0).int().default(0),
-  limit: z.coerce.number().min(1).max(100).default(10)
+  limit: z.coerce.number().min(1).max(MAX_CHAPTERS_PER_PAGE).default(10)
 });
 
 const GetChaptersOutput = z.object({
