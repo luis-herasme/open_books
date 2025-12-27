@@ -6,6 +6,7 @@ import * as HttpStatusCodes from 'stoker/http-status-codes';
 
 import { MAX_CHAPTERS_PER_PAGE } from '../constants.ts';
 import { getChaptersByBookId } from '../db/repository.ts';
+import { ErrorMessage } from '../error_message_schema.ts';
 
 const GetChaptersInput = z.object({
   book_id: z.uuid(),
@@ -30,26 +31,46 @@ export const getChaptersRoute = createRoute({
     query: GetChaptersInput
   },
   responses: {
-    [HttpStatusCodes.OK]: jsonContent(GetChaptersOutput, 'Chapters List')
+    [HttpStatusCodes.OK]: jsonContent(GetChaptersOutput, 'Chapters List'),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(ErrorMessage, 'Not Found'),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(ErrorMessage, 'Internal Server Error')
   }
 });
 
 export const getChaptersHandler: RouteHandler<typeof getChaptersRoute> = async (c) => {
   const input = await c.req.valid('query');
 
-  const { count, chapters } = await getChaptersByBookId({
+  const result = await getChaptersByBookId({
     book_id: input.book_id,
     offset: input.offset,
     limit: input.limit
   });
 
+  if (!result.ok && result.error === 'BOOK_NOT_FOUND') {
+    return c.json(
+      {
+        message: 'Book not found'
+      },
+      HttpStatusCodes.NOT_FOUND
+    );
+  }
+
+  if (!result.ok) {
+    return c.json(
+      {
+        message: 'Internal Server Error'
+      },
+      HttpStatusCodes.INTERNAL_SERVER_ERROR
+    );
+  }
+
   return c.json(
     {
-      chapters: chapters.map((chapter) => ({
+      chapters: result.data.chapters.map((chapter) => ({
         chapter_id: chapter.id,
         chapter_title: chapter.title
       })),
-      count
+      count: result.data.count
     },
     HttpStatusCodes.OK
   );

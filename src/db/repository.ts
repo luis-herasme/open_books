@@ -1,3 +1,4 @@
+import { Result } from '../result.ts';
 import { db } from './index.ts';
 import {
   chaptersTable,
@@ -24,6 +25,14 @@ export async function getChapterById(chapter_id: string): Promise<ChapterSelect 
   return chapter;
 }
 
+type GetChaptersByBookIdResult = Result<
+  {
+    chapters: ChapterSelect[];
+    count: number;
+  },
+  'BOOK_NOT_FOUND'
+>;
+
 export async function getChaptersByBookId({
   book_id,
   offset,
@@ -32,15 +41,23 @@ export async function getChaptersByBookId({
   book_id: string;
   offset: number;
   limit: number;
-}): Promise<{
-  chapters: ChapterSelect[];
-  count: number;
-}> {
+}): Promise<GetChaptersByBookIdResult> {
   return db.transaction(async (tx) => {
+    const [book] = await tx.select().from(booksTable).where(eq(booksTable.id, book_id)).limit(1);
+
+    if (!book) {
+      return {
+        ok: false,
+        error: 'BOOK_NOT_FOUND'
+      };
+    }
+
+    const whereClause = eq(chaptersTable.book_id, book.id);
+
     const chapters = await tx
       .select()
       .from(chaptersTable)
-      .where(eq(chaptersTable.book_id, book_id))
+      .where(whereClause)
       .orderBy(asc(chaptersTable.number))
       .limit(limit)
       .offset(offset);
@@ -48,15 +65,18 @@ export async function getChaptersByBookId({
     const [chaptersCount] = await tx
       .select({ count: count() })
       .from(chaptersTable)
-      .where(eq(chaptersTable.book_id, book_id));
+      .where(whereClause);
 
     if (!chaptersCount) {
       throw new Error('Failed to count chapters');
     }
 
     return {
-      chapters,
-      count: chaptersCount.count
+      ok: true,
+      data: {
+        chapters,
+        count: chaptersCount.count
+      }
     };
   });
 }
