@@ -32,14 +32,33 @@ export async function getChaptersByBookId({
   book_id: string;
   offset: number;
   limit: number;
-}): Promise<ChapterSelect[]> {
-  return await db
-    .select()
-    .from(chaptersTable)
-    .where(eq(chaptersTable.book_id, book_id))
-    .orderBy(asc(chaptersTable.number))
-    .limit(limit)
-    .offset(offset);
+}): Promise<{
+  chapters: ChapterSelect[];
+  count: number;
+}> {
+  return db.transaction(async (tx) => {
+    const chapters = await tx
+      .select()
+      .from(chaptersTable)
+      .where(eq(chaptersTable.book_id, book_id))
+      .orderBy(asc(chaptersTable.number))
+      .limit(limit)
+      .offset(offset);
+
+    const [chaptersCount] = await tx
+      .select({ count: count() })
+      .from(chaptersTable)
+      .where(eq(chaptersTable.book_id, book_id));
+
+    if (!chaptersCount) {
+      throw new Error('Failed to count chapters');
+    }
+
+    return {
+      chapters,
+      count: chaptersCount.count
+    };
+  });
 }
 
 export async function getBooksByTitle({

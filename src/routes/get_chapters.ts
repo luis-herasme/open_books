@@ -18,7 +18,8 @@ const GetChaptersOutput = z.object({
       chapter_id: z.uuid(),
       chapter_title: z.string().min(1)
     })
-  )
+  ),
+  count: z.number().nonnegative().int()
 });
 
 export const getChaptersRoute = createRoute({
@@ -35,7 +36,7 @@ export const getChaptersRoute = createRoute({
 export const getChaptersHandler: RouteHandler<typeof getChaptersRoute> = async (c) => {
   const input = await c.req.valid('query');
 
-  const chapters = await getChaptersByBookId({
+  const { count, chapters } = await getChaptersByBookId({
     book_id: input.book_id,
     offset: input.offset,
     limit: input.limit
@@ -46,7 +47,8 @@ export const getChaptersHandler: RouteHandler<typeof getChaptersRoute> = async (
       chapters: chapters.map((chapter) => ({
         chapter_id: chapter.id,
         chapter_title: chapter.title
-      }))
+      })),
+      count
     },
     HttpStatusCodes.OK
   );
