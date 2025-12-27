@@ -8,7 +8,7 @@ import {
   ChapterInsert
 } from './schema.ts';
 
-import { eq, like, count } from 'drizzle-orm';
+import { eq, count, sql } from 'drizzle-orm';
 
 export async function getChapterById(chapter_id: string): Promise<ChapterSelect | null> {
   const [chapter] = await db
@@ -56,12 +56,12 @@ export async function getBooksByTitle({
   count: number;
 }> {
   return db.transaction(async (tx) => {
-    const searchTerm = `%${term.toLowerCase()}%`;
+    const whereClause = sql`lower(${booksTable.title}) like lower(${'%' + term + '%'})`;
 
     const books = await tx
       .select()
       .from(booksTable)
-      .where(like(booksTable.title, searchTerm))
+      .where(whereClause)
       .offset(offset)
       .limit(limit)
       .execute();
@@ -69,7 +69,7 @@ export async function getBooksByTitle({
     const [booksCount] = await tx
       .select({ count: count() })
       .from(booksTable)
-      .where(like(booksTable.title, searchTerm))
+      .where(whereClause)
       .execute();
 
     if (!booksCount) {
