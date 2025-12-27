@@ -8,7 +8,7 @@ import {
   ChapterInsert
 } from './schema.ts';
 
-import { eq, count, sql } from 'drizzle-orm';
+import { eq, count, sql, asc } from 'drizzle-orm';
 
 export async function getChapterById(chapter_id: string): Promise<ChapterSelect | null> {
   const [chapter] = await db
@@ -38,6 +38,7 @@ export async function getChaptersByBookId({
     .select()
     .from(chaptersTable)
     .where(eq(chaptersTable.book_id, book_id))
+    .orderBy(asc(chaptersTable.number))
     .limit(limit)
     .offset(offset)
     .execute();
