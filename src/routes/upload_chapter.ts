@@ -9,14 +9,14 @@ import { ErrorMessage } from '../error_message_schema.ts';
 import { apiKeyRequired } from '../api_key_required_middleware.ts';
 
 const UploadChapterInput = z.object({
-  book_id: z.string().nonempty(),
+  book_id: z.uuid(),
   title: z.string().nonempty(),
   content: z.string().nonempty(),
   number: z.number().nonnegative().int()
 });
 
 const UploadChapterOutput = z.object({
-  chapter_id: z.string().nonempty()
+  chapter_id: z.uuid()
 });
 
 export const uploadChapterRoute = createRoute({

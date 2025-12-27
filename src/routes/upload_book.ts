@@ -14,7 +14,7 @@ const UploadBookInput = z.object({
 });
 
 const UploadBookOutput = z.object({
-  book_id: z.string().nonempty()
+  book_id: z.uuid()
 });
 
 export const uploadBookRoute = createRoute({

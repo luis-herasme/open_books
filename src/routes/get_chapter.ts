@@ -8,11 +8,11 @@ import { getChapterById } from '../db/repository.ts';
 import { ErrorMessage } from '../error_message_schema.ts';
 
 const GetChapterInput = z.object({
-  chapter_id: z.string().nonempty()
+  chapter_id: z.uuid()
 });
 
 const GetChapterOutput = z.object({
-  book_id: z.string().nonempty(),
+  book_id: z.uuid(),
   content: z.string().nonempty()
 });
 

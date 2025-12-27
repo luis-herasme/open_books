@@ -7,7 +7,7 @@ import * as HttpStatusCodes from 'stoker/http-status-codes';
 import { getChaptersByBookId } from '../db/repository.ts';
 
 const GetChaptersInput = z.object({
-  book_id: z.string().nonempty(),
+  book_id: z.uuid(),
   offset: z.coerce.number().nonnegative().int().default(0),
   limit: z.coerce.number().nonnegative().int().default(10)
 });
@@ -15,7 +15,7 @@ const GetChaptersInput = z.object({
 const GetChaptersOutput = z.object({
   chapters: z.array(
     z.object({
-      chapter_id: z.string().nonempty(),
+      chapter_id: z.uuid(),
       chapter_title: z.string().nonempty()
     })
   )
