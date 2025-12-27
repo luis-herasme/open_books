@@ -61,6 +61,23 @@ export async function getChaptersByBookId({
   });
 }
 
+/**
+ * Sanitizes a term for use in an ILIKE query.
+ * @param term - The term to sanitize.
+ * @returns The sanitized term.
+ */
+function ilikeSanitize(term: string): string {
+  let sanitized = '';
+  for (const char of term) {
+    if (char === '%' || char === '_') {
+      sanitized += '\\' + char;
+    } else {
+      sanitized += char;
+    }
+  }
+  return sanitized;
+}
+
 export async function getBooksByTitle({
   term,
   offset,
@@ -74,7 +91,7 @@ export async function getBooksByTitle({
   count: number;
 }> {
   return db.transaction(async (tx) => {
-    const whereClause = ilike(booksTable.title, `%${term}%`);
+    const whereClause = ilike(booksTable.title, `%${ilikeSanitize(term)}%`);
 
     const books = await tx
       .select()
