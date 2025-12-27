@@ -16,7 +16,7 @@ const SearchBookOutput = z.object({
   books: z.array(
     z.object({
       book_id: z.string().nonempty(),
-      book_title: z.string().nonempty().nullable(),
+      book_title: z.string().nonempty(),
       image_url: z.string().nullable()
     })
   ),
