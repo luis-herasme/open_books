@@ -14,7 +14,7 @@ const UploadChapterInput = z.object({
   book_id: z.uuid(),
   title: z.string().min(1),
   content: z.string().min(1),
-  number: z.number().positive().int().max(MAX_CHAPTERS_PER_BOOK)
+  number: z.number().min(1).int().max(MAX_CHAPTERS_PER_BOOK)
 });
 
 const UploadChapterOutput = z.object({
