@@ -1,13 +1,19 @@
-import { uuid, pgTable, varchar, text, timestamp, integer, unique } from 'drizzle-orm/pg-core';
+import { uuid, pgTable, varchar, text, timestamp, integer, unique, index } from 'drizzle-orm/pg-core';
 
-export const booksTable = pgTable('books', {
-  id: uuid().primaryKey().defaultRandom(),
-  title: varchar({ length: 256 }).notNull(),
-  image_url: varchar({ length: 512 }),
+export const booksTable = pgTable(
+  'books',
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    title: varchar({ length: 256 }).notNull(),
+    image_url: varchar({ length: 512 }),
 
-  created_at: timestamp().notNull().defaultNow(),
-  updated_at: timestamp().notNull().defaultNow()
-});
+    created_at: timestamp().notNull().defaultNow(),
+    updated_at: timestamp().notNull().defaultNow()
+  },
+  (table) => ({
+    titleIndex: index('books_title_idx').on(table.title)
+  })
+);
 
 export type BookSelect = typeof booksTable.$inferSelect;
 export type BookInsert = typeof booksTable.$inferInsert;
@@ -28,7 +34,8 @@ export const chaptersTable = pgTable(
     updated_at: timestamp().notNull().defaultNow()
   },
   (table) => ({
-    uniqueChapterNumberPerBook: unique().on(table.book_id, table.number)
+    uniqueChapterNumberPerBook: unique().on(table.book_id, table.number),
+    bookIdIndex: index('chapters_book_id_idx').on(table.book_id)
   })
 );
 
