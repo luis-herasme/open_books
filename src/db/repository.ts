@@ -15,8 +15,7 @@ export async function getChapterById(chapter_id: string): Promise<ChapterSelect 
     .select()
     .from(chaptersTable)
     .where(eq(chaptersTable.id, chapter_id))
-    .limit(1)
-    .execute();
+    .limit(1);
 
   if (!chapter) {
     return null;
@@ -40,8 +39,7 @@ export async function getChaptersByBookId({
     .where(eq(chaptersTable.book_id, book_id))
     .orderBy(asc(chaptersTable.number))
     .limit(limit)
-    .offset(offset)
-    .execute();
+    .offset(offset);
 }
 
 export async function getBooksByTitle({
@@ -59,19 +57,9 @@ export async function getBooksByTitle({
   return db.transaction(async (tx) => {
     const whereClause = sql`lower(${booksTable.title}) like lower(${'%' + term + '%'})`;
 
-    const books = await tx
-      .select()
-      .from(booksTable)
-      .where(whereClause)
-      .offset(offset)
-      .limit(limit)
-      .execute();
+    const books = await tx.select().from(booksTable).where(whereClause).offset(offset).limit(limit);
 
-    const [booksCount] = await tx
-      .select({ count: count() })
-      .from(booksTable)
-      .where(whereClause)
-      .execute();
+    const [booksCount] = await tx.select({ count: count() }).from(booksTable).where(whereClause);
 
     if (!booksCount) {
       throw new Error('Failed to count books');
@@ -85,7 +73,7 @@ export async function getBooksByTitle({
 }
 
 export async function createBook(data: BookInsert): Promise<BookSelect> {
-  const [book] = await db.insert(booksTable).values(data).returning().execute();
+  const [book] = await db.insert(booksTable).values(data).returning();
 
   if (!book) {
     throw new Error('Failed to create book');
@@ -95,7 +83,7 @@ export async function createBook(data: BookInsert): Promise<BookSelect> {
 }
 
 export async function createChapter(data: ChapterInsert): Promise<ChapterSelect> {
-  const [chapter] = await db.insert(chaptersTable).values(data).returning().execute();
+  const [chapter] = await db.insert(chaptersTable).values(data).returning();
 
   if (!chapter) {
     throw new Error('Failed to create chapter');
