@@ -17,7 +17,7 @@ const SearchBookOutput = z.object({
     z.object({
       book_id: z.uuid(),
       book_title: z.string().min(1),
-      image_url: z.string().nullable()
+      image_url: z.url().nullable()
     })
   ),
   count: z.number().nonnegative().int()
