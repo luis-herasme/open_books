@@ -8,11 +8,13 @@ import { createChapter } from '../db/repository.ts';
 import { ErrorMessage } from '../error_message_schema.ts';
 import { apiKeyRequired } from '../api_key_required_middleware.ts';
 
+const MAX_CHAPTERS_PER_BOOK = 10_000;
+
 const UploadChapterInput = z.object({
   book_id: z.uuid(),
   title: z.string().min(1),
   content: z.string().min(1),
-  number: z.number().positive().int().max(10_000)
+  number: z.number().positive().int().max(MAX_CHAPTERS_PER_BOOK)
 });
 
 const UploadChapterOutput = z.object({
