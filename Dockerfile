@@ -2,7 +2,10 @@ FROM node:23.9-alpine
 
 WORKDIR /app
 
-COPY . .    
+COPY package*.json ./
 
-RUN npm i
-CMD ["node", "src/index.ts"]
+RUN npm ci
+
+COPY . .
+
+CMD ["npx", "tsx", "src/index.ts"]
