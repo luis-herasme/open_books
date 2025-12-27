@@ -12,7 +12,7 @@ const UploadChapterInput = z.object({
   book_id: z.uuid(),
   title: z.string().min(1),
   content: z.string().min(1),
-  number: z.number().positive().int()
+  number: z.number().positive().int().max(10_000)
 });
 
 const UploadChapterOutput = z.object({
