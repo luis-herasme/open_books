@@ -18,7 +18,9 @@ const SearchBookOutput = z.object({
     z.object({
       book_id: z.uuid(),
       book_title: z.string().min(1),
-      image_url: z.url().nullable()
+      image_url: z.url().nullable(),
+      author: z.string().nullable(),
+      description: z.string().nullable()
     })
   ),
   count: z.number().min(0).int()
@@ -49,7 +51,9 @@ export const searchBookHandler: RouteHandler<typeof searchBookRoute> = async (c)
       books: books.map((book) => ({
         book_id: book.id,
         book_title: book.title,
-        image_url: book.image_url
+        image_url: book.image_url,
+        author: book.author,
+        description: book.description
       })),
       count
     },
