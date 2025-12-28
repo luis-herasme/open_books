@@ -10,8 +10,8 @@ import { ErrorMessage } from '../lib/error_message_schema.ts';
 
 const GetChaptersInput = z.object({
   book_id: z.uuid(),
-  offset: z.coerce.number().min(0).int().default(0),
-  limit: z.coerce.number().min(1).max(MAX_CHAPTERS_PER_PAGE).default(10)
+  skip: z.coerce.number().min(0).int().default(0),
+  take: z.coerce.number().min(1).max(MAX_CHAPTERS_PER_PAGE).default(10)
 });
 
 const GetChaptersOutput = z.object({
@@ -42,8 +42,8 @@ export const getChaptersHandler: RouteHandler<typeof getChaptersRoute> = async (
 
   const result = await getChaptersByBookId({
     book_id: input.book_id,
-    offset: input.offset,
-    limit: input.limit
+    offset: input.skip,
+    limit: input.take
   });
 
   if (!result.ok && result.error === 'BOOK_NOT_FOUND') {

@@ -9,8 +9,8 @@ import { getBooksByTitle } from '../db/repository.ts';
 
 const SearchBookInput = z.object({
   book_title: z.string(),
-  offset: z.coerce.number().min(0).int().default(0),
-  limit: z.coerce.number().min(1).max(MAX_BOOKS_PER_PAGE).default(10)
+  skip: z.coerce.number().min(0).int().default(0),
+  take: z.coerce.number().min(1).max(MAX_BOOKS_PER_PAGE).default(10)
 });
 
 const SearchBookOutput = z.object({
@@ -42,8 +42,8 @@ export const searchBookHandler: RouteHandler<typeof searchBookRoute> = async (c)
 
   const { books, count } = await getBooksByTitle({
     book_title: input.book_title,
-    offset: input.offset,
-    limit: input.limit
+    offset: input.skip,
+    limit: input.take
   });
 
   return c.json(
