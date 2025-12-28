@@ -99,11 +99,11 @@ function ilikeSanitize(term: string): string {
 }
 
 export async function getBooksByTitle({
-  term,
+  book_title,
   offset,
   limit
 }: {
-  term: string;
+  book_title: string;
   offset: number;
   limit: number;
 }): Promise<{
@@ -111,7 +111,7 @@ export async function getBooksByTitle({
   count: number;
 }> {
   return db.transaction(async (tx) => {
-    const whereClause = ilike(booksTable.title, `%${ilikeSanitize(term)}%`);
+    const whereClause = ilike(booksTable.title, `%${ilikeSanitize(book_title)}%`);
 
     const books = await tx
       .select()

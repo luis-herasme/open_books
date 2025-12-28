@@ -8,7 +8,7 @@ import { MAX_BOOKS_PER_PAGE } from '../constants.ts';
 import { getBooksByTitle } from '../db/repository.ts';
 
 const SearchBookInput = z.object({
-  term: z.string().min(1),
+  book_title: z.string(),
   offset: z.coerce.number().min(0).int().default(0),
   limit: z.coerce.number().min(1).max(MAX_BOOKS_PER_PAGE).default(10)
 });
@@ -41,7 +41,7 @@ export const searchBookHandler: RouteHandler<typeof searchBookRoute> = async (c)
   const input = await c.req.valid('query');
 
   const { books, count } = await getBooksByTitle({
-    term: input.term,
+    book_title: input.book_title,
     offset: input.offset,
     limit: input.limit
   });
