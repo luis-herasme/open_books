@@ -21,7 +21,9 @@ const GetChaptersOutput = z.object({
       chapter_title: z.string().min(1)
     })
   ),
-  count: z.number().min(0).int()
+  total: z.number().min(0).int().openapi({
+    description: 'The total number of chapters for the book'
+  })
 });
 
 export const getChaptersRoute = createRoute({
@@ -70,7 +72,7 @@ export const getChaptersHandler: RouteHandler<typeof getChaptersRoute> = async (
         chapter_id: chapter.id,
         chapter_title: chapter.title
       })),
-      count: result.data.count
+      total: result.data.total
     },
     HttpStatusCodes.OK
   );

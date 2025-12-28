@@ -28,7 +28,7 @@ export async function getChapterById(chapter_id: string): Promise<ChapterSelect 
 type GetChaptersByBookIdResult = Result<
   {
     chapters: ChapterSelect[];
-    count: number;
+    total: number;
   },
   'BOOK_NOT_FOUND'
 >;
@@ -75,7 +75,7 @@ export async function getChaptersByBookId({
       ok: true,
       data: {
         chapters,
-        count: chaptersCount.count
+        total: chaptersCount.count
       }
     };
   });
@@ -108,7 +108,7 @@ export async function getBooksByTitle({
   limit: number;
 }): Promise<{
   books: BookSelect[];
-  count: number;
+  total: number;
 }> {
   return db.transaction(async (tx) => {
     const whereClause = ilike(booksTable.title, `%${ilikeSanitize(book_title)}%`);
@@ -129,7 +129,7 @@ export async function getBooksByTitle({
 
     return {
       books,
-      count: booksCount.count
+      total: booksCount.count
     };
   });
 }

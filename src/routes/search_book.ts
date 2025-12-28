@@ -23,7 +23,9 @@ const SearchBookOutput = z.object({
       description: z.string().nullable()
     })
   ),
-  count: z.number().min(0).int()
+  total: z.number().min(0).int().openapi({
+    description: 'The total number of books matching the search criteria'
+  })
 });
 
 export const searchBookRoute = createRoute({
@@ -40,7 +42,7 @@ export const searchBookRoute = createRoute({
 export const searchBookHandler: RouteHandler<typeof searchBookRoute> = async (c) => {
   const input = await c.req.valid('query');
 
-  const { books, count } = await getBooksByTitle({
+  const { books, total } = await getBooksByTitle({
     book_title: input.book_title,
     offset: input.skip,
     limit: input.take
@@ -55,7 +57,7 @@ export const searchBookHandler: RouteHandler<typeof searchBookRoute> = async (c)
         author: book.author,
         description: book.description
       })),
-      count
+      total
     },
     HttpStatusCodes.OK
   );
