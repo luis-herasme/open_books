@@ -1,7 +1,9 @@
 CREATE TABLE "books" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"title" varchar(256) NOT NULL,
-	"image_url" varchar(512),
+	"title" varchar(1000) NOT NULL,
+	"image_url" varchar(1000),
+	"author" varchar(1000),
+	"description" varchar(1000000),
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
@@ -10,7 +12,7 @@ CREATE TABLE "chapters" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"book_id" uuid NOT NULL,
 	"number" integer NOT NULL,
-	"title" varchar(256) NOT NULL,
+	"title" varchar(1000) NOT NULL,
 	"content" varchar(1000000) NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
