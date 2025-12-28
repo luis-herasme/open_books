@@ -7,11 +7,18 @@ import * as HttpStatusCodes from 'stoker/http-status-codes';
 import { createBook } from '../db/repository.ts';
 import { ErrorMessage } from '../lib/error_message_schema.ts';
 import { apiKeyRequired } from '../lib/api_key_required_middleware.ts';
-import { MAX_BOOK_TITLE_LENGTH, MAX_BOOK_IMAGE_URL_LENGTH } from '../constants.ts';
+import {
+  MAX_BOOK_TITLE_LENGTH,
+  MAX_BOOK_IMAGE_URL_LENGTH,
+  MAX_BOOK_AUTHOR_LENGTH,
+  MAX_BOOK_DESCRIPTION_LENGTH
+} from '../constants.ts';
 
 const UploadBookInput = z.object({
   title: z.string().min(1).max(MAX_BOOK_TITLE_LENGTH),
-  image_url: z.url().max(MAX_BOOK_IMAGE_URL_LENGTH).optional()
+  image_url: z.url().max(MAX_BOOK_IMAGE_URL_LENGTH).optional(),
+  author: z.string().min(1).max(MAX_BOOK_AUTHOR_LENGTH).optional(),
+  description: z.string().min(1).max(MAX_BOOK_DESCRIPTION_LENGTH).optional()
 });
 
 const UploadBookOutput = z.object({
@@ -36,7 +43,9 @@ export const uploadBookHandler: RouteHandler<typeof uploadBookRoute> = async (c)
 
   const book = await createBook({
     title: input.title,
-    image_url: input.image_url
+    image_url: input.image_url,
+    author: input.author,
+    description: input.description
   });
 
   return c.json(

@@ -2,9 +2,11 @@ import { uuid, pgTable, varchar, timestamp, integer, unique, index } from 'drizz
 
 import {
   MAX_BOOK_TITLE_LENGTH,
+  MAX_BOOK_AUTHOR_LENGTH,
   MAX_CHAPTER_TITLE_LENGTH,
   MAX_BOOK_IMAGE_URL_LENGTH,
-  MAX_CHAPTER_CONTENT_LENGTH
+  MAX_CHAPTER_CONTENT_LENGTH,
+  MAX_BOOK_DESCRIPTION_LENGTH
 } from '../constants.ts';
 
 export const booksTable = pgTable(
@@ -13,6 +15,8 @@ export const booksTable = pgTable(
     id: uuid().primaryKey().defaultRandom(),
     title: varchar({ length: MAX_BOOK_TITLE_LENGTH }).notNull(),
     image_url: varchar({ length: MAX_BOOK_IMAGE_URL_LENGTH }),
+    author: varchar({ length: MAX_BOOK_AUTHOR_LENGTH }),
+    description: varchar({ length: MAX_BOOK_DESCRIPTION_LENGTH }),
 
     created_at: timestamp().notNull().defaultNow(),
     updated_at: timestamp().notNull().defaultNow()
