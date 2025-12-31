@@ -1,3 +1,6 @@
+import { eq, count, ilike, asc } from 'drizzle-orm';
+
+import { imageStorage } from '../lib/image_storage.ts';
 import { Result } from '../lib/result.ts';
 import { db } from './index.ts';
 import {
@@ -5,11 +8,11 @@ import {
   ChapterSelect,
   BookSelect,
   booksTable,
-  BookInsert,
-  ChapterInsert
+  ChapterInsert,
+  imagesTable,
+  ImageSelect,
+  SupportedImageMimeType
 } from './schema.ts';
-
-import { eq, count, ilike, asc } from 'drizzle-orm';
 
 export async function getChapterById(chapter_id: string): Promise<ChapterSelect | null> {
   const [chapter] = await db
@@ -134,16 +137,6 @@ export async function getBooksByTitle({
   });
 }
 
-export async function createBook(data: BookInsert): Promise<BookSelect> {
-  const [book] = await db.insert(booksTable).values(data).returning();
-
-  if (!book) {
-    throw new Error('Failed to create book');
-  }
-
-  return book;
-}
-
 export async function createChapter(data: ChapterInsert): Promise<ChapterSelect> {
   const [chapter] = await db.insert(chaptersTable).values(data).returning();
 
@@ -152,4 +145,67 @@ export async function createChapter(data: ChapterInsert): Promise<ChapterSelect>
   }
 
   return chapter;
+}
+
+export async function getImageById(image_id: string): Promise<ImageSelect | null> {
+  const [image] = await db.select().from(imagesTable).where(eq(imagesTable.id, image_id)).limit(1);
+
+  if (!image) {
+    return null;
+  }
+
+  return image;
+}
+
+export async function createBook({
+  title,
+  author,
+  description,
+  image
+}: {
+  title: string;
+  author?: string;
+  description?: string;
+  image?: {
+    buffer: Buffer;
+    contentType: SupportedImageMimeType;
+  };
+}): Promise<BookSelect> {
+  return db.transaction(async (tx) => {
+    let imageId: string | undefined;
+
+    if (image) {
+      const [createdImage] = await tx
+        .insert(imagesTable)
+        .values({ content_type: image.contentType })
+        .returning();
+
+      if (!createdImage) {
+        throw new Error('Failed to create image');
+      }
+
+      await imageStorage.saveBuffer({
+        imageId: createdImage.id,
+        buffer: image.buffer
+      });
+
+      imageId = createdImage.id;
+    }
+
+    const [book] = await tx
+      .insert(booksTable)
+      .values({
+        title,
+        author,
+        description,
+        image_id: imageId
+      })
+      .returning();
+
+    if (!book) {
+      throw new Error('Failed to create book');
+    }
+
+    return book;
+  });
 }

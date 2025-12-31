@@ -4,6 +4,7 @@ import { jsonContent } from 'stoker/openapi/helpers';
 import type { RouteHandler } from '@hono/zod-openapi';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 
+import { env } from '../env.ts';
 import { MAX_BOOKS_PER_PAGE } from '../constants.ts';
 import { getBooksByTitle } from '../db/repository.ts';
 
@@ -50,13 +51,21 @@ export const searchBookHandler: RouteHandler<typeof searchBookRoute> = async (c)
 
   return c.json(
     {
-      books: books.map((book) => ({
-        book_id: book.id,
-        book_title: book.title,
-        image_url: book.image_url,
-        author: book.author,
-        description: book.description
-      })),
+      books: books.map((book) => {
+        let imageUrl = null;
+
+        if (book.image_id) {
+          imageUrl = `${env.BASE_URL}/images/${book.image_id}`;
+        }
+
+        return {
+          book_id: book.id,
+          book_title: book.title,
+          image_url: imageUrl,
+          author: book.author,
+          description: book.description
+        };
+      }),
       total
     },
     HttpStatusCodes.OK

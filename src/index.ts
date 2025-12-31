@@ -5,6 +5,8 @@ import { Scalar } from '@scalar/hono-api-reference';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 
 import { env } from './env.ts';
+import { getImageById } from './db/repository.ts';
+import { imageStorage } from './lib/image_storage.ts';
 
 import * as getChapter from './routes/get_chapter.ts';
 import * as getChapters from './routes/get_chapters.ts';
@@ -23,6 +25,26 @@ app.openapi(uploadBook.uploadBookRoute, uploadBook.uploadBookHandler);
 app.openapi(getChapter.getChapterRoute, getChapter.getChapterHandler);
 app.openapi(getChapters.getChaptersRoute, getChapters.getChaptersHandler);
 app.openapi(uploadChapter.uploadChapterRoute, uploadChapter.uploadChapterHandler);
+
+// Images
+app.get('/images/:imageId', async (c) => {
+  const imageId = c.req.param('imageId');
+
+  const image = await getImageById(imageId);
+
+  if (!image) {
+    return c.json({ message: 'Image not found' }, HttpStatusCodes.NOT_FOUND);
+  }
+
+  const imageBuffer = await imageStorage.loadBuffer(imageId);
+
+  return new Response(new Uint8Array(imageBuffer), {
+    status: HttpStatusCodes.OK,
+    headers: {
+      'Content-Type': image.content_type
+    }
+  });
+});
 
 app.doc('/openapi', {
   openapi: '3.0.0',
