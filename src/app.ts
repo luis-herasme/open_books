@@ -52,3 +52,5 @@ export function createApp() {
 
   return app;
 }
+
+export type App = ReturnType<typeof createApp>;
