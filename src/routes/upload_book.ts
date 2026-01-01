@@ -108,12 +108,16 @@ type ImageBuffer = {
 
 export async function validateImage(image: File): Promise<ImageBuffer> {
   if (image.size > MAX_UPLOAD_IMAGE_SIZE_BYTES) {
-    throw new ClientError(`Image size must be less than ${MAX_UPLOAD_IMAGE_SIZE_BYTES} bytes`);
+    throw new ClientError({
+      message: `Image size must be less than ${MAX_UPLOAD_IMAGE_SIZE_BYTES} bytes`
+    });
   }
 
   const contentTypeResult = SupportedImageMimeType.safeParse(image.type);
   if (!contentTypeResult.success) {
-    throw new ClientError('Image must be a supported MIME type');
+    throw new ClientError({
+      message: 'Image must be a supported MIME type'
+    });
   }
 
   const arrayBuffer = await image.arrayBuffer();

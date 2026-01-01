@@ -1,3 +1,4 @@
+import { z, ZodError } from 'zod';
 import { defaultHook } from 'stoker/openapi';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { Scalar } from '@scalar/hono-api-reference';
@@ -47,6 +48,15 @@ export function createApp() {
       return c.json(
         {
           message: error.message
+        },
+        error.status
+      );
+    }
+
+    if (error instanceof ZodError) {
+      return c.json(
+        {
+          message: z.prettifyError(error)
         },
         HttpStatusCodes.BAD_REQUEST
       );
