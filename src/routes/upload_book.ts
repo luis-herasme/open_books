@@ -15,12 +15,21 @@ import {
   MAX_UPLOAD_IMAGE_SIZE_BYTES,
   SUPPORTED_IMAGE_MIME_TYPES
 } from '../constants.ts';
+import { ClientError } from '../lib/client-error.ts';
+
+const SUPPORTED_IMAGE_MIME_TYPES_DESCRIPTION = SUPPORTED_IMAGE_MIME_TYPES.join(', ');
 
 const UploadBookInput = z.object({
   title: z.string().min(1).max(MAX_BOOK_TITLE_LENGTH),
   author: z.string().min(1).max(MAX_BOOK_AUTHOR_LENGTH).optional(),
   description: z.string().min(1).max(MAX_BOOK_DESCRIPTION_LENGTH).optional(),
-  image: z.file().mime(SUPPORTED_IMAGE_MIME_TYPES).max(MAX_UPLOAD_IMAGE_SIZE_BYTES).optional()
+  image: z
+    .any()
+    .openapi({
+      format: 'binary',
+      description: `Image data (max ${MAX_UPLOAD_IMAGE_SIZE_BYTES} bytes, supported MIME types: ${SUPPORTED_IMAGE_MIME_TYPES_DESCRIPTION})`
+    })
+    .optional()
 });
 
 const UploadBookOutput = z.object({
@@ -42,30 +51,18 @@ export const uploadBookRoute = createRoute({
   },
   responses: {
     [HttpStatusCodes.CREATED]: jsonContent(UploadBookOutput, 'Book identifier'),
-    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(ErrorMessage, 'Unauthorized')
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(ErrorMessage, 'Unauthorized'),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(ErrorMessage, 'Bad Request')
   }
 });
 
 export const uploadBookHandler: RouteHandler<typeof uploadBookRoute> = async (c) => {
   const input = await c.req.valid('form');
 
-  let image:
-    | {
-        buffer: Buffer;
-        contentType: SupportedImageMimeType;
-      }
-    | undefined;
+  let image: ImageBuffer | undefined;
 
   if (input.image) {
-    const arrayBuffer = await input.image.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    const contentType = SupportedImageMimeType.parse(input.image.type);
-
-    image = {
-      buffer,
-      contentType
-    };
+    image = await validateImage(input.image);
   }
 
   const book = await createBook({
@@ -82,3 +79,27 @@ export const uploadBookHandler: RouteHandler<typeof uploadBookRoute> = async (c)
     HttpStatusCodes.CREATED
   );
 };
+
+type ImageBuffer = {
+  buffer: Buffer;
+  contentType: SupportedImageMimeType;
+};
+
+export async function validateImage(image: File): Promise<ImageBuffer> {
+  if (image.size > MAX_UPLOAD_IMAGE_SIZE_BYTES) {
+    throw new ClientError(`Image size must be less than ${MAX_UPLOAD_IMAGE_SIZE_BYTES} bytes`);
+  }
+
+  const contentTypeResult = SupportedImageMimeType.safeParse(image.type);
+  if (!contentTypeResult.success) {
+    throw new ClientError('Image must be a supported MIME type');
+  }
+
+  const arrayBuffer = await image.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  return {
+    buffer,
+    contentType: contentTypeResult.data
+  };
+}

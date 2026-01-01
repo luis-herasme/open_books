@@ -7,7 +7,7 @@ import { getImageById } from '../db/repository.ts';
 import { imageStorage } from '../lib/image_storage.ts';
 import { ErrorMessage } from '../lib/error_message_schema.ts';
 
-const ImageSchema = z.instanceof(Uint8Array).openapi({
+const ImageSchema = z.any().openapi({
   format: 'binary',
   description: 'Binary image data'
 });
