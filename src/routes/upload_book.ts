@@ -26,7 +26,8 @@ const UploadBookInput = z.object({
   image: z.any().optional()
 });
 
-// More complex validations are not possible with parseBody
+// More complex validations will conflict with parseBody.
+// The error response will be: "Error: res.body.getReader is not a function"
 const FormCompatibleUploadBookInput = z.object({
   title: z.string().openapi({
     description: 'Title of the book',
