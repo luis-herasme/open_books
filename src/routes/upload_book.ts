@@ -23,6 +23,26 @@ const UploadBookInput = z.object({
   title: z.string().min(1).max(MAX_BOOK_TITLE_LENGTH),
   author: z.string().min(1).max(MAX_BOOK_AUTHOR_LENGTH).optional(),
   description: z.string().min(1).max(MAX_BOOK_DESCRIPTION_LENGTH).optional(),
+  image: z.any().optional()
+});
+
+// More complex validations are not possible with parseBody
+const FormCompatibleUploadBookInput = z.object({
+  title: z.string().openapi({
+    description: 'Title of the book',
+    minLength: 1,
+    maxLength: MAX_BOOK_TITLE_LENGTH
+  }),
+  author: z.string().optional().openapi({
+    description: 'Author of the book',
+    minLength: 1,
+    maxLength: MAX_BOOK_AUTHOR_LENGTH
+  }),
+  description: z.string().optional().openapi({
+    description: 'Description of the book',
+    minLength: 1,
+    maxLength: MAX_BOOK_DESCRIPTION_LENGTH
+  }),
   image: z
     .any()
     .openapi({
@@ -44,7 +64,7 @@ export const uploadBookRoute = createRoute({
     body: {
       content: {
         'multipart/form-data': {
-          schema: UploadBookInput
+          schema: FormCompatibleUploadBookInput
         }
       }
     }
@@ -57,19 +77,20 @@ export const uploadBookRoute = createRoute({
 });
 
 export const uploadBookHandler: RouteHandler<typeof uploadBookRoute> = async (c) => {
-  const input = await c.req.valid('form');
+  const formData = await c.req.parseBody();
+  const { title, author, description, image } = UploadBookInput.parse(formData);
 
-  let image: ImageBuffer | undefined;
+  let imageBuffer: ImageBuffer | undefined;
 
-  if (input.image) {
-    image = await validateImage(input.image);
+  if (image) {
+    imageBuffer = await validateImage(image);
   }
 
   const book = await createBook({
-    title: input.title,
-    author: input.author,
-    description: input.description,
-    image
+    title,
+    author,
+    description,
+    image: imageBuffer
   });
 
   return c.json(
