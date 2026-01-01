@@ -9,15 +9,16 @@ import * as searchBook from './routes/search_book.ts';
 import * as getChapter from './routes/get_chapter.ts';
 import * as getChapters from './routes/get_chapters.ts';
 import * as uploadChapter from './routes/upload_chapter.ts';
+import { ClientError } from './lib/client-error.ts';
 
 export function createApp() {
   const app = new OpenAPIHono({ defaultHook })
-    .openapi(image.imageRoute, image.imageHandler)
     .openapi(searchBook.searchBookRoute, searchBook.searchBookHandler)
     .openapi(uploadBook.uploadBookRoute, uploadBook.uploadBookHandler)
     .openapi(getChapter.getChapterRoute, getChapter.getChapterHandler)
     .openapi(getChapters.getChaptersRoute, getChapters.getChaptersHandler)
-    .openapi(uploadChapter.uploadChapterRoute, uploadChapter.uploadChapterHandler);
+    .openapi(uploadChapter.uploadChapterRoute, uploadChapter.uploadChapterHandler)
+    .openapi(image.imageRoute, image.imageHandler);
 
   app.doc('/openapi', {
     openapi: '3.0.0',
@@ -41,6 +42,15 @@ export function createApp() {
 
   app.onError((error, c) => {
     console.error(error);
+
+    if (error instanceof ClientError) {
+      return c.json(
+        {
+          message: error.message
+        },
+        HttpStatusCodes.BAD_REQUEST
+      );
+    }
 
     return c.json(
       {
