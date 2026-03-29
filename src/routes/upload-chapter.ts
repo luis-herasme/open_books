@@ -41,9 +41,8 @@ export const uploadChapterRoute = createRoute({
 });
 
 export const uploadChapterHandler: RouteHandler<typeof uploadChapterRoute, AppEnv> = async (c) => {
-  const input = await c.req.valid('json');
-
   const db = drizzle(c.env.DB);
+  const input = await c.req.valid('json');
 
   const chapter = await createChapter({
     db,

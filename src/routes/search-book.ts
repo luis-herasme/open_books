@@ -43,8 +43,8 @@ export const searchBookRoute = createRoute({
 });
 
 export const searchBookHandler: RouteHandler<typeof searchBookRoute, AppEnv> = async (c) => {
-  const input = await c.req.valid('query');
   const db = drizzle(c.env.DB);
+  const input = await c.req.valid('query');
 
   const { books, total } = await getBooksByTitle({
     db,

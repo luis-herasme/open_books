@@ -32,8 +32,8 @@ export const getChapterRoute = createRoute({
 });
 
 export const getChapterHandler: RouteHandler<typeof getChapterRoute, AppEnv> = async (c) => {
-  const input = await c.req.valid('query');
   const db = drizzle(c.env.DB);
+  const input = await c.req.valid('query');
   const chapter = await getChapterById({ db, chapter_id: input.chapter_id });
 
   if (chapter === null) {

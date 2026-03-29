@@ -81,9 +81,9 @@ export const uploadBookRoute = createRoute({
 });
 
 export const uploadBookHandler: RouteHandler<typeof uploadBookRoute, AppEnv> = async (c) => {
+  const db = drizzle(c.env.DB);
   const formData = await c.req.parseBody();
   const { title, author, description, image } = UploadBookInput.parse(formData);
-  const db = drizzle(c.env.DB);
 
   let imageBuffer: ImageBuffer | undefined;
 
