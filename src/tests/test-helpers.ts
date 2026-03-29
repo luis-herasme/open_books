@@ -1,25 +1,34 @@
-import Database from 'better-sqlite3';
-import { drizzle } from 'drizzle-orm/better-sqlite3';
+import { env } from 'cloudflare:test';
+import { drizzle } from 'drizzle-orm/d1';
 import { sql } from 'drizzle-orm';
 import { testClient } from 'hono/testing';
 
-import { env } from '../env.ts';
+import { createApp } from '../app.ts';
 import type { App } from '../app.ts';
 
-const testDb = drizzle(new Database(env.DATABASE_PATH));
+// Re-export env so test files can use it for app.request() calls
+export { env } from 'cloudflare:test';
 
-export function cleanupDatabase() {
-  testDb.run(sql`PRAGMA foreign_keys = OFF`);
+const app = createApp();
 
-  const tables = testDb.all<{ name: string }>(
-    sql`SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '__drizzle%'`
+// Pass env as second arg so Hono binds c.env for Workers
+export const client = testClient(app, env);
+export { app };
+
+export async function cleanupDatabase() {
+  const db = drizzle(env.DB);
+
+  await db.run(sql`PRAGMA foreign_keys = OFF`);
+
+  const tables = await db.all<{ name: string }>(
+    sql`SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '__drizzle%' AND name NOT LIKE '_cf_%'`
   );
 
   for (const table of tables) {
-    testDb.run(sql.raw(`DELETE FROM "${table.name}"`));
+    await db.run(sql.raw(`DELETE FROM "${table.name}"`));
   }
 
-  testDb.run(sql`PRAGMA foreign_keys = ON`);
+  await db.run(sql`PRAGMA foreign_keys = ON`);
 }
 
 const TEST_IMAGE_BYTES = new Uint8Array([
@@ -48,7 +57,7 @@ export async function createTestBook(client: TestAppClient, form: TestBookData) 
     },
     {
       headers: {
-        'x-api-key': env.API_KEY
+        'x-api-key': '1234'
       }
     }
   );
@@ -81,7 +90,7 @@ export async function createTestChapter(
     },
     {
       headers: {
-        'x-api-key': env.API_KEY
+        'x-api-key': '1234'
       }
     }
   );
