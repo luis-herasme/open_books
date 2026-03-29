@@ -4,7 +4,6 @@ import { OpenAPIHono } from '@hono/zod-openapi';
 import { Scalar } from '@scalar/hono-api-reference';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 
-import * as image from './routes/image.ts';
 import * as uploadBook from './routes/upload_book.ts';
 import * as searchBook from './routes/search_book.ts';
 import * as getChapter from './routes/get_chapter.ts';
@@ -18,8 +17,7 @@ export function createApp() {
     .openapi(uploadBook.uploadBookRoute, uploadBook.uploadBookHandler)
     .openapi(getChapter.getChapterRoute, getChapter.getChapterHandler)
     .openapi(getChapters.getChaptersRoute, getChapters.getChaptersHandler)
-    .openapi(uploadChapter.uploadChapterRoute, uploadChapter.uploadChapterHandler)
-    .openapi(image.imageRoute, image.imageHandler);
+    .openapi(uploadChapter.uploadChapterRoute, uploadChapter.uploadChapterHandler);
 
   app.doc('/openapi', {
     openapi: '3.0.0',

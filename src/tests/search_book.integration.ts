@@ -1,3 +1,14 @@
+import { vi } from 'vitest';
+
+vi.mock('@aws-sdk/client-s3', () => {
+  return {
+    S3Client: vi.fn().mockImplementation(() => ({
+      send: vi.fn().mockResolvedValue({})
+    })),
+    PutObjectCommand: vi.fn()
+  };
+});
+
 import { describe, it, expect, afterEach } from 'vitest';
 import { testClient } from 'hono/testing';
 import assert from 'node:assert';
@@ -76,7 +87,7 @@ describe('GET /search-book', () => {
 
     assert(data.books[0]);
     expect(data.books[0].book_id).toBe(bookId);
-    expect(data.books[0].image_url).toBeDefined();
+    expect(data.books[0].image_url).toMatch(/^https:\/\/test-r2\.example\.com\//);
   });
 
   it('should return empty array when no books match', async () => {

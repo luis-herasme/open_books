@@ -1,41 +1,38 @@
-import path from 'node:path';
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { z } from 'zod';
-import * as HttpStatusCodes from 'stoker/http-status-codes';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 import { env } from '../env.ts';
-import { ClientError } from './client-error.ts';
 
-const UUIDSchema = z.string().uuid();
-
-async function saveBuffer({ imageId, buffer }: { imageId: string; buffer: Buffer }): Promise<void> {
-  const validationResult = UUIDSchema.safeParse(imageId);
-  if (!validationResult.success) {
-    throw new ClientError({
-      message: 'Invalid image ID format',
-      status: HttpStatusCodes.BAD_REQUEST
-    });
+const S3 = new S3Client({
+  region: 'auto',
+  endpoint: `https://${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: env.R2_ACCESS_KEY_ID,
+    secretAccessKey: env.R2_SECRET_ACCESS_KEY
   }
+});
 
-  await mkdir(env.IMAGES_DIR, { recursive: true });
-  const imagePath = path.join(env.IMAGES_DIR, imageId);
-  await writeFile(imagePath, buffer);
+type SaveBufferParams = {
+  buffer: Buffer;
+  imageId: string;
+  contentType: string;
+};
+
+async function saveBuffer({ imageId, buffer, contentType }: SaveBufferParams): Promise<void> {
+  await S3.send(
+    new PutObjectCommand({
+      Bucket: env.R2_BUCKET_NAME,
+      Key: imageId,
+      Body: buffer,
+      ContentType: contentType
+    })
+  );
 }
 
-async function loadBuffer(imageId: string): Promise<Buffer> {
-  const validationResult = UUIDSchema.safeParse(imageId);
-  if (!validationResult.success) {
-    throw new ClientError({
-      message: 'Invalid image ID format',
-      status: HttpStatusCodes.BAD_REQUEST
-    });
-  }
-
-  const imagePath = path.join(env.IMAGES_DIR, imageId);
-  return await readFile(imagePath);
+function getPublicUrl(imageId: string): string {
+  return `${env.R2_PUBLIC_URL}/${imageId}`;
 }
 
 export const imageStorage = {
   saveBuffer,
-  loadBuffer
+  getPublicUrl
 };
