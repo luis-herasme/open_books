@@ -2,7 +2,7 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 import { env } from '../env.ts';
 
-const s3Client = new S3Client({
+const S3 = new S3Client({
   region: 'auto',
   endpoint: `https://${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
   credentials: {
@@ -12,13 +12,13 @@ const s3Client = new S3Client({
 });
 
 type SaveBufferParams = {
-  imageId: string;
   buffer: Buffer;
+  imageId: string;
   contentType: string;
 };
 
 async function saveBuffer({ imageId, buffer, contentType }: SaveBufferParams): Promise<void> {
-  await s3Client.send(
+  await S3.send(
     new PutObjectCommand({
       Bucket: env.R2_BUCKET_NAME,
       Key: imageId,
