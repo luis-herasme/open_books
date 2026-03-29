@@ -55,11 +55,7 @@ export async function getChaptersByBookId({
   offset,
   limit
 }: GetChaptersByBookIdParams): Promise<GetChaptersByBookIdResult> {
-  const [book] = await db
-    .select()
-    .from(booksTable)
-    .where(eq(booksTable.id, book_id))
-    .limit(1);
+  const [book] = await db.select().from(booksTable).where(eq(booksTable.id, book_id)).limit(1);
 
   if (!book) {
     return {
@@ -141,10 +137,7 @@ export async function getBooksByTitle({
     .offset(offset)
     .limit(limit);
 
-  const [booksCount] = await db
-    .select({ count: count() })
-    .from(booksTable)
-    .where(whereClause);
+  const [booksCount] = await db.select({ count: count() }).from(booksTable).where(whereClause);
 
   if (!booksCount) {
     throw new Error('Failed to count books');
@@ -156,10 +149,12 @@ export async function getBooksByTitle({
   };
 }
 
-export async function createChapter(
-  db: DrizzleD1Database,
-  data: ChapterInsert
-): Promise<ChapterSelect> {
+type CreateChapterParams = {
+  db: DrizzleD1Database;
+  data: ChapterInsert;
+};
+
+export async function createChapter({ db, data }: CreateChapterParams): Promise<ChapterSelect> {
   const [chapter] = await db.insert(chaptersTable).values(data).returning();
 
   if (!chapter) {
@@ -188,8 +183,8 @@ export async function createBook({
   image
 }: CreateBookParams): Promise<BookSelect> {
   if (image) {
-    const imageId = crypto.randomUUID();
     const bookId = crypto.randomUUID();
+    const imageId = crypto.randomUUID();
     const now = new Date().toISOString();
 
     const results = await db.batch([
@@ -213,7 +208,7 @@ export async function createBook({
         .returning()
     ]);
 
-    const bookResult = results[1] as unknown as BookSelect[];
+    const bookResult = results[1];
     const book = bookResult[0];
 
     if (!book) {
@@ -225,7 +220,11 @@ export async function createBook({
 
   const [book] = await db
     .insert(booksTable)
-    .values({ title, author, description })
+    .values({
+      title,
+      author,
+      description
+    })
     .returning();
 
   if (!book) {

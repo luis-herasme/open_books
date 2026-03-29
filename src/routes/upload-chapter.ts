@@ -45,11 +45,14 @@ export const uploadChapterHandler: RouteHandler<typeof uploadChapterRoute, AppEn
 
   const db = drizzle(c.env.DB);
 
-  const chapter = await createChapter(db, {
-    book_id: input.book_id,
-    title: input.title,
-    content: input.content,
-    number: input.number
+  const chapter = await createChapter({
+    db,
+    data: {
+      book_id: input.book_id,
+      title: input.title,
+      content: input.content,
+      number: input.number
+    }
   });
 
   return c.json(
