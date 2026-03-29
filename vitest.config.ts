@@ -3,6 +3,7 @@ import { defineWorkersConfig } from '@cloudflare/vitest-pool-workers/config';
 export default defineWorkersConfig({
   test: {
     include: ['**/*.{test,spec,integration}.?(c|m)[jt]s?(x)'],
+    setupFiles: ['./src/tests/setup.ts'],
     fileParallelism: false,
     pool: '@cloudflare/vitest-pool-workers',
     poolOptions: {
