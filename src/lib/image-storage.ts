@@ -11,16 +11,6 @@ async function saveBuffer({ bucket, imageId, buffer, contentType }: SaveBufferPa
   });
 }
 
-type GetPublicUrlParams = {
-  publicUrl: string;
-  imageId: string;
-};
-
-function getPublicUrl({ publicUrl, imageId }: GetPublicUrlParams): string {
-  return `${publicUrl}/${imageId}`;
-}
-
 export const imageStorage = {
-  saveBuffer,
-  getPublicUrl
+  saveBuffer
 };

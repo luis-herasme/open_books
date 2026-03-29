@@ -5,7 +5,6 @@ import type { RouteHandler } from '@hono/zod-openapi';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 
 import type { AppEnv } from '../bindings.ts';
-import { imageStorage } from '../lib/image-storage.ts';
 import { MAX_BOOKS_PER_PAGE } from '../constants.ts';
 import { getBooksByTitle } from '../db/repository.ts';
 
@@ -58,10 +57,7 @@ export const searchBookHandler: RouteHandler<typeof searchBookRoute, AppEnv> = a
         let imageUrl = null;
 
         if (book.image_id) {
-          imageUrl = imageStorage.getPublicUrl({
-            publicUrl: c.env.R2_PUBLIC_URL,
-            imageId: book.image_id
-          });
+          imageUrl = `${c.env.R2_PUBLIC_URL}/${book.image_id}`;
         }
 
         return {
