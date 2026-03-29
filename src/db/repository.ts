@@ -1,7 +1,6 @@
 import { eq, count, asc, sql } from 'drizzle-orm';
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
 
-import { Result } from '../lib/result.ts';
 import {
   chaptersTable,
   ChapterSelect,
@@ -34,13 +33,18 @@ export async function getChapterById({
   return chapter;
 }
 
-type GetChaptersByBookIdResult = Result<
-  {
-    chapters: ChapterSelect[];
-    total: number;
-  },
-  'BOOK_NOT_FOUND'
->;
+type GetChaptersByBookIdResult =
+  | {
+      ok: true;
+      data: {
+        chapters: ChapterSelect[];
+        total: number;
+      };
+    }
+  | {
+      ok: false;
+      error: 'BOOK_NOT_FOUND';
+    };
 
 type GetChaptersByBookIdParams = {
   db: DrizzleD1Database;
