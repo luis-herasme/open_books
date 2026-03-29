@@ -1,28 +1,25 @@
+import Database from 'better-sqlite3';
+import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { sql } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/node-postgres';
 import { testClient } from 'hono/testing';
 
 import { env } from '../env.ts';
 import type { App } from '../app.ts';
 
-const testDb = drizzle(env.DATABASE_URL);
+const testDb = drizzle(new Database(env.DATABASE_PATH));
 
-export async function cleanupDatabase() {
-  // Get all table names from the public schema
-  const result = await testDb.execute<{ tablename: string }>(sql`
-    SELECT tablename 
-    FROM pg_tables 
-    WHERE schemaname = 'public'
-  `);
+export function cleanupDatabase() {
+  testDb.run(sql`PRAGMA foreign_keys = OFF`);
 
-  // Truncate all tables with CASCADE to handle foreign key constraints
-  for (const row of result.rows) {
-    try {
-      await testDb.execute(sql.raw(`TRUNCATE TABLE "${row.tablename}" CASCADE`));
-    } catch {
-      // Ignore errors (table might not exist or have issues)
-    }
+  const tables = testDb.all<{ name: string }>(
+    sql`SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '__drizzle%'`
+  );
+
+  for (const table of tables) {
+    testDb.run(sql.raw(`DELETE FROM "${table.name}"`));
   }
+
+  testDb.run(sql`PRAGMA foreign_keys = ON`);
 }
 
 const TEST_IMAGE_BYTES = new Uint8Array([
