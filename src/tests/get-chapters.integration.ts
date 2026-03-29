@@ -1,18 +1,12 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { testClient } from 'hono/testing';
 import assert from 'node:assert';
 
-import { cleanupDatabase, createTestBook, createTestChapter } from './test-helpers.ts';
-import { createApp } from '../app.ts';
+import { app, client, env, cleanupDatabase, createTestBook, createTestChapter } from './test-helpers.ts';
 
 describe('GET /chapters', () => {
-  const app = createApp();
-  const client = testClient(app);
-
   afterEach(cleanupDatabase);
 
   it('should return chapters list when book exists', async () => {
-    // Create test data via API
     const bookId = await createTestBook(client, { title: 'Test Book' });
 
     const chapter1Id = await createTestChapter(client, {
@@ -52,10 +46,8 @@ describe('GET /chapters', () => {
   });
 
   it('should return chapters with pagination parameters', async () => {
-    // Create test data with multiple chapters via API
     const bookId = await createTestBook(client, { title: 'Test Book' });
 
-    // Create 5 chapters
     for (let i = 1; i <= 5; i++) {
       await createTestChapter(client, {
         book_id: bookId,
@@ -90,20 +82,22 @@ describe('GET /chapters', () => {
   });
 
   it('should return 422 for invalid book_id format', async () => {
-    const response = await app.request('/chapters?book_id=invalid-uuid');
+    const response = await app.request('/chapters?book_id=invalid-uuid', undefined, env);
 
     expect(response.status).toBe(422);
   });
 
   it('should return 422 when book_id is missing', async () => {
-    const response = await app.request('/chapters');
+    const response = await app.request('/chapters', undefined, env);
 
     expect(response.status).toBe(422);
   });
 
   it('should return 422 when take exceeds maximum', async () => {
     const response = await app.request(
-      '/chapters?book_id=987e4567-e89b-12d3-a456-426614174000&take=200'
+      '/chapters?book_id=987e4567-e89b-12d3-a456-426614174000&take=200',
+      undefined,
+      env
     );
 
     expect(response.status).toBe(422);
@@ -111,7 +105,9 @@ describe('GET /chapters', () => {
 
   it('should return 422 when skip is negative', async () => {
     const response = await app.request(
-      '/chapters?book_id=987e4567-e89b-12d3-a456-426614174000&skip=-1'
+      '/chapters?book_id=987e4567-e89b-12d3-a456-426614174000&skip=-1',
+      undefined,
+      env
     );
 
     expect(response.status).toBe(422);

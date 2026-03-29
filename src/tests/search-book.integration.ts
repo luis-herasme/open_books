@@ -1,29 +1,12 @@
-import { vi } from 'vitest';
-
-vi.mock('@aws-sdk/client-s3', () => {
-  return {
-    S3Client: vi.fn().mockImplementation(() => ({
-      send: vi.fn().mockResolvedValue({})
-    })),
-    PutObjectCommand: vi.fn()
-  };
-});
-
 import { describe, it, expect, afterEach } from 'vitest';
-import { testClient } from 'hono/testing';
 import assert from 'node:assert';
 
-import { createApp } from '../app.ts';
-import { cleanupDatabase, createTestBook, TEST_IMAGE_FILE } from './test-helpers.ts';
+import { app, client, env, cleanupDatabase, createTestBook, TEST_IMAGE_FILE } from './test-helpers.ts';
 
 describe('GET /search-book', () => {
-  const app = createApp();
-  const client = testClient(app);
-
   afterEach(cleanupDatabase);
 
   it('should return books matching the search title', async () => {
-    // Create test data via API
     const book1Id = await createTestBook(client, {
       title: 'The Great Adventure',
       author: 'John Doe',
@@ -35,7 +18,6 @@ describe('GET /search-book', () => {
       author: 'Jane Smith'
     });
 
-    // Create a book that shouldn't match
     await createTestBook(client, {
       title: 'Mystery Novel'
     });
@@ -51,7 +33,6 @@ describe('GET /search-book', () => {
     expect(data.books).toHaveLength(2);
     expect(data.total).toBe(2);
 
-    // Results should be ordered by title
     expect(data.books[0]).toEqual({
       book_id: book2Id,
       book_title: 'Adventure Time',
@@ -91,7 +72,6 @@ describe('GET /search-book', () => {
   });
 
   it('should return empty array when no books match', async () => {
-    // Create some books that won't match
     await createTestBook(client, {
       title: 'Mystery Novel'
     });
@@ -111,7 +91,6 @@ describe('GET /search-book', () => {
   });
 
   it('should handle pagination parameters', async () => {
-    // Create multiple books via API
     for (let i = 1; i <= 10; i++) {
       await createTestBook(client, {
         title: `Test Book ${i.toString().padStart(2, '0')}`
@@ -132,7 +111,6 @@ describe('GET /search-book', () => {
     expect(data.books).toHaveLength(4);
     expect(data.total).toBe(10);
 
-    // Books are ordered by title, so after skipping 3, we should get books 04-07
     expect(data.books[0]?.book_title).toBe('Test Book 04');
     expect(data.books[3]?.book_title).toBe('Test Book 07');
   });
@@ -153,19 +131,19 @@ describe('GET /search-book', () => {
   });
 
   it('should return 422 when book_title is missing', async () => {
-    const response = await app.request('/search-book');
+    const response = await app.request('/search-book', undefined, env);
 
     expect(response.status).toBe(422);
   });
 
   it('should return 422 when take exceeds maximum', async () => {
-    const response = await app.request('/search-book?book_title=test&take=200');
+    const response = await app.request('/search-book?book_title=test&take=200', undefined, env);
 
     expect(response.status).toBe(422);
   });
 
   it('should return 422 when skip is negative', async () => {
-    const response = await app.request('/search-book?book_title=test&skip=-1');
+    const response = await app.request('/search-book?book_title=test&skip=-1', undefined, env);
 
     expect(response.status).toBe(422);
   });

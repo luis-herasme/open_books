@@ -1,15 +1,9 @@
 import assert from 'node:assert';
-import { testClient } from 'hono/testing';
 import { describe, it, expect, afterEach } from 'vitest';
 
-import { env } from '../env.ts';
-import { createApp } from '../app.ts';
-import { createTestBook, cleanupDatabase } from './test-helpers.ts';
+import { app, client, env, createTestBook, cleanupDatabase } from './test-helpers.ts';
 
 describe('POST /upload-chapter', () => {
-  const app = createApp();
-  const client = testClient(app);
-
   afterEach(cleanupDatabase);
 
   it('should create a chapter successfully', async () => {
@@ -28,7 +22,7 @@ describe('POST /upload-chapter', () => {
       },
       {
         headers: {
-          'x-api-key': env.API_KEY
+          'x-api-key': '1234'
         }
       }
     );
@@ -37,7 +31,6 @@ describe('POST /upload-chapter', () => {
     const data = await response.json();
     expect(data.chapter_id).toBeDefined();
 
-    // Verify chapter was created by fetching it via API
     const getResponse = await client.chapter.$get({
       query: {
         chapter_id: data.chapter_id
@@ -54,7 +47,6 @@ describe('POST /upload-chapter', () => {
       title: 'Test Book'
     });
 
-    // Create first chapter
     const response1 = await client['upload-chapter'].$post(
       {
         json: {
@@ -66,14 +58,13 @@ describe('POST /upload-chapter', () => {
       },
       {
         headers: {
-          'x-api-key': env.API_KEY
+          'x-api-key': '1234'
         }
       }
     );
 
     expect(response1.status).toBe(201);
 
-    // Create second chapter
     const response2 = await client['upload-chapter'].$post(
       {
         json: {
@@ -85,14 +76,13 @@ describe('POST /upload-chapter', () => {
       },
       {
         headers: {
-          'x-api-key': env.API_KEY
+          'x-api-key': '1234'
         }
       }
     );
 
     expect(response2.status).toBe(201);
 
-    // Verify both chapters exist by listing chapters
     const chaptersResponse = await client.chapters.$get({
       query: {
         book_id: bookId
@@ -143,7 +133,7 @@ describe('POST /upload-chapter', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': env.API_KEY
+        'x-api-key': '1234'
       },
       body: JSON.stringify({
         book_id: 'invalid-uuid',
@@ -151,7 +141,7 @@ describe('POST /upload-chapter', () => {
         content: 'Content here',
         number: 1
       })
-    });
+    }, env);
 
     expect(response.status).toBe(422);
   });
@@ -161,7 +151,7 @@ describe('POST /upload-chapter', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': env.API_KEY
+        'x-api-key': '1234'
       },
       body: JSON.stringify({
         book_id: '987e4567-e89b-12d3-a456-426614174000',
@@ -169,7 +159,7 @@ describe('POST /upload-chapter', () => {
         content: 'Content here',
         number: 1
       })
-    });
+    }, env);
 
     expect(response.status).toBe(422);
   });
@@ -179,7 +169,7 @@ describe('POST /upload-chapter', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': env.API_KEY
+        'x-api-key': '1234'
       },
       body: JSON.stringify({
         book_id: '987e4567-e89b-12d3-a456-426614174000',
@@ -187,7 +177,7 @@ describe('POST /upload-chapter', () => {
         content: '',
         number: 1
       })
-    });
+    }, env);
 
     expect(response.status).toBe(422);
   });
@@ -197,7 +187,7 @@ describe('POST /upload-chapter', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': env.API_KEY
+        'x-api-key': '1234'
       },
       body: JSON.stringify({
         book_id: '987e4567-e89b-12d3-a456-426614174000',
@@ -205,7 +195,7 @@ describe('POST /upload-chapter', () => {
         content: 'Content here',
         number: 0
       })
-    });
+    }, env);
 
     expect(response.status).toBe(422);
   });
@@ -215,7 +205,7 @@ describe('POST /upload-chapter', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': env.API_KEY
+        'x-api-key': '1234'
       },
       body: JSON.stringify({
         book_id: '987e4567-e89b-12d3-a456-426614174000',
@@ -223,7 +213,7 @@ describe('POST /upload-chapter', () => {
         content: 'Content here',
         number: -1
       })
-    });
+    }, env);
 
     expect(response.status).toBe(422);
   });
@@ -233,12 +223,12 @@ describe('POST /upload-chapter', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': env.API_KEY
+        'x-api-key': '1234'
       },
       body: JSON.stringify({
         book_id: '987e4567-e89b-12d3-a456-426614174000'
       })
-    });
+    }, env);
 
     expect(response.status).toBe(422);
   });
