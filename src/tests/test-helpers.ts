@@ -6,13 +6,15 @@ import { testClient } from 'hono/testing';
 import { createApp } from '../app.ts';
 import type { App } from '../app.ts';
 
+type TestAppClient = ReturnType<typeof testClient<App>>;
+
 // Re-export env so test files can use it for app.request() calls
 export { env } from 'cloudflare:test';
 
 const app = createApp();
 
 // Pass env as second arg so Hono binds c.env for Workers
-export const client = testClient(app, env);
+export const client: TestAppClient = testClient(app, env);
 export { app };
 
 export async function cleanupDatabase() {
@@ -40,8 +42,6 @@ const TEST_IMAGE_BYTES = new Uint8Array([
 ]);
 
 export const TEST_IMAGE_FILE = new File([TEST_IMAGE_BYTES], 'cover.png', { type: 'image/png' });
-
-type TestAppClient = ReturnType<typeof testClient<App>>;
 
 type TestBookData = {
   title: string;

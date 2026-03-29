@@ -1,11 +1,6 @@
-import { z } from 'zod';
-
-export const BindingsSchema = z.object({
-  API_KEY: z.string().min(1),
-  R2_PUBLIC_URL: z.url()
-});
-
-export type Bindings = z.infer<typeof BindingsSchema> & {
+export type Bindings = {
+  API_KEY: string;
+  R2_PUBLIC_URL: string;
   DB: D1Database;
   BUCKET: R2Bucket;
 };

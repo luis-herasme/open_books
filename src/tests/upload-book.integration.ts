@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import { randomUUID } from 'node:crypto';
 import { describe, it, expect, afterEach } from 'vitest';
 
-import { app, client, cleanupDatabase, TEST_IMAGE_FILE } from './test-helpers.ts';
+import { client, cleanupDatabase, TEST_IMAGE_FILE } from './test-helpers.ts';
 
 describe('POST /upload-book', () => {
   afterEach(cleanupDatabase);

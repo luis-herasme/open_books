@@ -3,7 +3,6 @@ import { defaultHook } from 'stoker/openapi';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { Scalar } from '@scalar/hono-api-reference';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
-import { BindingsSchema } from './bindings.ts';
 import type { AppEnv } from './bindings.ts';
 import * as uploadBook from './routes/upload-book.ts';
 import * as searchBook from './routes/search-book.ts';
@@ -14,10 +13,6 @@ import { ClientError } from './lib/client-error.ts';
 
 export function createApp() {
   const app = new OpenAPIHono<AppEnv>({ defaultHook })
-    .use(async (c, next) => {
-      BindingsSchema.parse(c.env);
-      await next();
-    })
     .openapi(searchBook.searchBookRoute, searchBook.searchBookHandler)
     .openapi(uploadBook.uploadBookRoute, uploadBook.uploadBookHandler)
     .openapi(getChapter.getChapterRoute, getChapter.getChapterHandler)
