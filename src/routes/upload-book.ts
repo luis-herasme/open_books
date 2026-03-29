@@ -6,7 +6,6 @@ import * as HttpStatusCodes from 'stoker/http-status-codes';
 
 import type { AppEnv } from '../bindings.ts';
 import { createBook } from '../db/repository.ts';
-import { imageStorage } from '../lib/image-storage.ts';
 import { SupportedImageMimeType } from '../db/schema.ts';
 import { ErrorMessage } from '../lib/error-message-schema.ts';
 import { apiKeyRequired } from '../lib/api-key-required-middleware.ts';
@@ -99,11 +98,8 @@ export const uploadBookHandler: RouteHandler<typeof uploadBookRoute, AppEnv> = a
   });
 
   if (imageBuffer && book.image_id) {
-    await imageStorage.saveBuffer({
-      bucket: c.env.BUCKET,
-      imageId: book.image_id,
-      buffer: imageBuffer.buffer,
-      contentType: imageBuffer.contentType
+    await c.env.BUCKET.put(book.image_id, imageBuffer.buffer, {
+      httpMetadata: { contentType: imageBuffer.contentType }
     });
   }
 
