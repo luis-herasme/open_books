@@ -4,11 +4,11 @@ import { OpenAPIHono } from '@hono/zod-openapi';
 import { Scalar } from '@scalar/hono-api-reference';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 
-import * as uploadBook from './routes/upload_book.ts';
-import * as searchBook from './routes/search_book.ts';
-import * as getChapter from './routes/get_chapter.ts';
-import * as getChapters from './routes/get_chapters.ts';
-import * as uploadChapter from './routes/upload_chapter.ts';
+import * as uploadBook from './routes/upload-book.ts';
+import * as searchBook from './routes/search-book.ts';
+import * as getChapter from './routes/get-chapter.ts';
+import * as getChapters from './routes/get-chapters.ts';
+import * as uploadChapter from './routes/upload-chapter.ts';
 import { ClientError } from './lib/client-error.ts';
 
 export function createApp() {

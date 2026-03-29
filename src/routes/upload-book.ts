@@ -6,8 +6,8 @@ import * as HttpStatusCodes from 'stoker/http-status-codes';
 
 import { createBook } from '../db/repository.ts';
 import { SupportedImageMimeType } from '../db/schema.ts';
-import { ErrorMessage } from '../lib/error_message_schema.ts';
-import { apiKeyRequired } from '../lib/api_key_required_middleware.ts';
+import { ErrorMessage } from '../lib/error-message-schema.ts';
+import { apiKeyRequired } from '../lib/api-key-required-middleware.ts';
 import {
   MAX_BOOK_TITLE_LENGTH,
   MAX_BOOK_AUTHOR_LENGTH,

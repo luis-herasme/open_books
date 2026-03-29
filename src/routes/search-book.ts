@@ -4,7 +4,7 @@ import { jsonContent } from 'stoker/openapi/helpers';
 import type { RouteHandler } from '@hono/zod-openapi';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 
-import { imageStorage } from '../lib/image_storage.ts';
+import { imageStorage } from '../lib/image-storage.ts';
 import { MAX_BOOKS_PER_PAGE } from '../constants.ts';
 import { getBooksByTitle } from '../db/repository.ts';
 

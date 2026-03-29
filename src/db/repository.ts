@@ -1,6 +1,6 @@
 import { eq, count, ilike, asc } from 'drizzle-orm';
 
-import { imageStorage } from '../lib/image_storage.ts';
+import { imageStorage } from '../lib/image-storage.ts';
 import { Result } from '../lib/result.ts';
 import { db } from './index.ts';
 import {
