@@ -1,4 +1,7 @@
 node_modules
 images
+*.db
+*.db-journal
+*.db-wal
 .wrangler
 .dev.vars
