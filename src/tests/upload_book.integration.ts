@@ -1,3 +1,14 @@
+import { vi } from 'vitest';
+
+vi.mock('@aws-sdk/client-s3', () => {
+  return {
+    S3Client: vi.fn().mockImplementation(() => ({
+      send: vi.fn().mockResolvedValue({})
+    })),
+    PutObjectCommand: vi.fn()
+  };
+});
+
 import assert from 'node:assert';
 import { randomUUID } from 'node:crypto';
 import { testClient } from 'hono/testing';
