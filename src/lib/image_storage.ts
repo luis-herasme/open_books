@@ -11,15 +11,13 @@ const s3Client = new S3Client({
   }
 });
 
-async function saveBuffer({
-  imageId,
-  buffer,
-  contentType
-}: {
+type SaveBufferParams = {
   imageId: string;
   buffer: Buffer;
   contentType: string;
-}): Promise<void> {
+};
+
+async function saveBuffer({ imageId, buffer, contentType }: SaveBufferParams): Promise<void> {
   await s3Client.send(
     new PutObjectCommand({
       Bucket: env.R2_BUCKET_NAME,
