@@ -4,6 +4,8 @@ import { jsonContent } from 'stoker/openapi/helpers';
 import type { RouteHandler } from '@hono/zod-openapi';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 
+import { drizzle } from 'drizzle-orm/d1';
+
 import type { AppEnv } from '../bindings.ts';
 import { createBook } from '../db/repository.ts';
 import { SupportedImageMimeType } from '../db/schema.ts';
@@ -81,7 +83,7 @@ export const uploadBookRoute = createRoute({
 export const uploadBookHandler: RouteHandler<typeof uploadBookRoute, AppEnv> = async (c) => {
   const formData = await c.req.parseBody();
   const { title, author, description, image } = UploadBookInput.parse(formData);
-  const db = c.var.db;
+  const db = drizzle(c.env.DB);
 
   let imageBuffer: ImageBuffer | undefined;
 

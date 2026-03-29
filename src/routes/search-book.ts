@@ -4,6 +4,8 @@ import { jsonContent } from 'stoker/openapi/helpers';
 import type { RouteHandler } from '@hono/zod-openapi';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 
+import { drizzle } from 'drizzle-orm/d1';
+
 import type { AppEnv } from '../bindings.ts';
 import { MAX_BOOKS_PER_PAGE } from '../constants.ts';
 import { getBooksByTitle } from '../db/repository.ts';
@@ -42,7 +44,7 @@ export const searchBookRoute = createRoute({
 
 export const searchBookHandler: RouteHandler<typeof searchBookRoute, AppEnv> = async (c) => {
   const input = await c.req.valid('query');
-  const db = c.var.db;
+  const db = drizzle(c.env.DB);
 
   const { books, total } = await getBooksByTitle({
     db,

@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import type { DrizzleD1Database } from 'drizzle-orm/d1';
 
 export const BindingsSchema = z.object({
   API_KEY: z.string().min(1),
@@ -13,7 +12,4 @@ export type Bindings = z.infer<typeof BindingsSchema> & {
 
 export type AppEnv = {
   Bindings: Bindings;
-  Variables: {
-    db: DrizzleD1Database;
-  };
 };
