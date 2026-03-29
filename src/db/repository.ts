@@ -121,7 +121,8 @@ export function getBooksByTitle({
 } {
   return db.transaction((tx) => {
     const pattern = `%${likeSanitize(book_title.toLowerCase())}%`;
-    const whereClause = sql`lower(${booksTable.title}) LIKE ${pattern} ESCAPE '\'`;
+    const escapeChar = '\\';
+    const whereClause = sql`lower(${booksTable.title}) LIKE ${pattern} ESCAPE ${escapeChar}`;
 
     const books = tx
       .select()
