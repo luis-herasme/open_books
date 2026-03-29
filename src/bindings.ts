@@ -1,10 +1,14 @@
+import { z } from 'zod';
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
 
-export type Bindings = {
+export const BindingsSchema = z.object({
+  API_KEY: z.string().min(1),
+  R2_PUBLIC_URL: z.url()
+});
+
+export type Bindings = z.infer<typeof BindingsSchema> & {
   DB: D1Database;
   BUCKET: R2Bucket;
-  API_KEY: string;
-  R2_PUBLIC_URL: string;
 };
 
 export type AppEnv = {
