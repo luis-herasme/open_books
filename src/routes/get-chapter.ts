@@ -31,7 +31,7 @@ export const getChapterRoute = createRoute({
 
 export const getChapterHandler: RouteHandler<typeof getChapterRoute, AppEnv> = async (c) => {
   const input = await c.req.valid('query');
-  const chapter = await getChapterById(c.var.db, input.chapter_id);
+  const chapter = await getChapterById({ db: c.var.db, chapter_id: input.chapter_id });
 
   if (chapter === null) {
     return c.json(

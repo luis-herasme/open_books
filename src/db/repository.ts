@@ -12,10 +12,15 @@ import {
   SupportedImageMimeType
 } from './schema.ts';
 
-export async function getChapterById(
-  db: DrizzleD1Database,
-  chapter_id: string
-): Promise<ChapterSelect | null> {
+type GetChapterByIdParams = {
+  db: DrizzleD1Database;
+  chapter_id: string;
+};
+
+export async function getChapterById({
+  db,
+  chapter_id
+}: GetChapterByIdParams): Promise<ChapterSelect | null> {
   const [chapter] = await db
     .select()
     .from(chaptersTable)
