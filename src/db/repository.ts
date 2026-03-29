@@ -186,7 +186,8 @@ export async function createBook({
 
       await imageStorage.saveBuffer({
         imageId: createdImage.id,
-        buffer: image.buffer
+        buffer: image.buffer,
+        contentType: image.contentType
       });
 
       imageId = createdImage.id;
