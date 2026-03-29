@@ -10,7 +10,6 @@ import {
   booksTable,
   ChapterInsert,
   imagesTable,
-  ImageSelect,
   SupportedImageMimeType
 } from './schema.ts';
 
@@ -145,16 +144,6 @@ export async function createChapter(data: ChapterInsert): Promise<ChapterSelect>
   }
 
   return chapter;
-}
-
-export async function getImageById(image_id: string): Promise<ImageSelect | null> {
-  const [image] = await db.select().from(imagesTable).where(eq(imagesTable.id, image_id)).limit(1);
-
-  if (!image) {
-    return null;
-  }
-
-  return image;
 }
 
 export async function createBook({
