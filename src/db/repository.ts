@@ -111,11 +111,7 @@ type GetBooksByTitleParams = {
   limit: number;
 };
 
-export function getBooksByTitle({
-  book_title,
-  offset,
-  limit
-}: GetBooksByTitleParams): {
+export function getBooksByTitle({ book_title, offset, limit }: GetBooksByTitleParams): {
   books: BookSelect[];
   total: number;
 } {
@@ -174,24 +170,20 @@ export async function createBook({
 }: CreateBookParams): Promise<BookSelect> {
   // Insert image and book rows in a single sync transaction.
   // S3 upload happens after the transaction since it's async.
-  const { book, imageToUpload } = db.transaction((tx) => {
+  const { book, imageId } = db.transaction((tx) => {
     let imageId: string | undefined;
 
     if (image) {
-      const [createdImage] = tx
+      imageId = tx
         .insert(imagesTable)
-        .values({ content_type: image.contentType })
+        .values({
+          content_type: image.contentType
+        })
         .returning()
-        .all();
-
-      if (!createdImage) {
-        throw new Error('Failed to create image');
-      }
-
-      imageId = createdImage.id;
+        .get().id;
     }
 
-    const [book] = tx
+    const book = tx
       .insert(booksTable)
       .values({
         title,
@@ -200,20 +192,17 @@ export async function createBook({
         image_id: imageId
       })
       .returning()
-      .all();
+      .get();
 
-    if (!book) {
-      throw new Error('Failed to create book');
-    }
-
-    return {
-      book,
-      imageToUpload: image && imageId ? { imageId, buffer: image.buffer, contentType: image.contentType } : undefined
-    };
+    return { book, imageId };
   });
 
-  if (imageToUpload) {
-    await imageStorage.saveBuffer(imageToUpload);
+  if (image && imageId) {
+    await imageStorage.saveBuffer({
+      imageId,
+      buffer: image.buffer,
+      contentType: image.contentType
+    });
   }
 
   return book;
