@@ -35,15 +35,17 @@ type GetChaptersByBookIdResult = Result<
   'BOOK_NOT_FOUND'
 >;
 
+type GetChaptersByBookIdParams = {
+  book_id: string;
+  offset: number;
+  limit: number;
+};
+
 export async function getChaptersByBookId({
   book_id,
   offset,
   limit
-}: {
-  book_id: string;
-  offset: number;
-  limit: number;
-}): Promise<GetChaptersByBookIdResult> {
+}: GetChaptersByBookIdParams): Promise<GetChaptersByBookIdResult> {
   return db.transaction(async (tx) => {
     const [book] = await tx.select().from(booksTable).where(eq(booksTable.id, book_id)).limit(1);
 
@@ -100,15 +102,17 @@ function ilikeSanitize(term: string): string {
   return sanitized;
 }
 
+type GetBooksByTitleParams = {
+  book_title: string;
+  offset: number;
+  limit: number;
+};
+
 export async function getBooksByTitle({
   book_title,
   offset,
   limit
-}: {
-  book_title: string;
-  offset: number;
-  limit: number;
-}): Promise<{
+}: GetBooksByTitleParams): Promise<{
   books: BookSelect[];
   total: number;
 }> {
@@ -146,12 +150,7 @@ export async function createChapter(data: ChapterInsert): Promise<ChapterSelect>
   return chapter;
 }
 
-export async function createBook({
-  title,
-  author,
-  description,
-  image
-}: {
+type CreateBookParams = {
   title: string;
   author?: string;
   description?: string;
@@ -159,7 +158,14 @@ export async function createBook({
     buffer: Buffer;
     contentType: SupportedImageMimeType;
   };
-}): Promise<BookSelect> {
+};
+
+export async function createBook({
+  title,
+  author,
+  description,
+  image
+}: CreateBookParams): Promise<BookSelect> {
   return db.transaction(async (tx) => {
     let imageId: string | undefined;
 
