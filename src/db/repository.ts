@@ -1,4 +1,4 @@
-import { eq, count, ilike, asc } from 'drizzle-orm';
+import { eq, count, asc, sql } from 'drizzle-orm';
 
 import { imageStorage } from '../lib/image-storage.ts';
 import { Result } from '../lib/result.ts';
@@ -13,12 +13,13 @@ import {
   SupportedImageMimeType
 } from './schema.ts';
 
-export async function getChapterById(chapter_id: string): Promise<ChapterSelect | null> {
-  const [chapter] = await db
+export function getChapterById(chapter_id: string): ChapterSelect | null {
+  const [chapter] = db
     .select()
     .from(chaptersTable)
     .where(eq(chaptersTable.id, chapter_id))
-    .limit(1);
+    .limit(1)
+    .all();
 
   if (!chapter) {
     return null;
@@ -41,42 +42,44 @@ type GetChaptersByBookIdParams = {
   limit: number;
 };
 
-export async function getChaptersByBookId({
+export function getChaptersByBookId({
   book_id,
   offset,
   limit
-}: GetChaptersByBookIdParams): Promise<GetChaptersByBookIdResult> {
-  return db.transaction(async (tx) => {
-    const [book] = await tx.select().from(booksTable).where(eq(booksTable.id, book_id)).limit(1);
+}: GetChaptersByBookIdParams): GetChaptersByBookIdResult {
+  return db.transaction((tx) => {
+    const [book] = tx.select().from(booksTable).where(eq(booksTable.id, book_id)).limit(1).all();
 
     if (!book) {
       return {
-        ok: false,
-        error: 'BOOK_NOT_FOUND'
+        ok: false as const,
+        error: 'BOOK_NOT_FOUND' as const
       };
     }
 
     const whereClause = eq(chaptersTable.book_id, book.id);
 
-    const chapters = await tx
+    const chapters = tx
       .select()
       .from(chaptersTable)
       .where(whereClause)
       .orderBy(asc(chaptersTable.number))
       .limit(limit)
-      .offset(offset);
+      .offset(offset)
+      .all();
 
-    const [chaptersCount] = await tx
+    const [chaptersCount] = tx
       .select({ count: count() })
       .from(chaptersTable)
-      .where(whereClause);
+      .where(whereClause)
+      .all();
 
     if (!chaptersCount) {
       throw new Error('Failed to count chapters');
     }
 
     return {
-      ok: true,
+      ok: true as const,
       data: {
         chapters,
         total: chaptersCount.count
@@ -86,11 +89,11 @@ export async function getChaptersByBookId({
 }
 
 /**
- * Sanitizes a term for use in an ILIKE query.
- * @param term - The term to sanitize.
- * @returns The sanitized term.
+ * Sanitizes a term for use in a LIKE query.
+ * Escapes % and _ wildcards with backslash.
+ * Must be used with ESCAPE '\' clause in the query.
  */
-function ilikeSanitize(term: string): string {
+function likeSanitize(term: string): string {
   let sanitized = '';
   for (const char of term) {
     if (char === '%' || char === '_') {
@@ -108,26 +111,28 @@ type GetBooksByTitleParams = {
   limit: number;
 };
 
-export async function getBooksByTitle({
+export function getBooksByTitle({
   book_title,
   offset,
   limit
-}: GetBooksByTitleParams): Promise<{
+}: GetBooksByTitleParams): {
   books: BookSelect[];
   total: number;
-}> {
-  return db.transaction(async (tx) => {
-    const whereClause = ilike(booksTable.title, `%${ilikeSanitize(book_title)}%`);
+} {
+  return db.transaction((tx) => {
+    const pattern = `%${likeSanitize(book_title.toLowerCase())}%`;
+    const whereClause = sql`lower(${booksTable.title}) LIKE ${pattern} ESCAPE '\'`;
 
-    const books = await tx
+    const books = tx
       .select()
       .from(booksTable)
       .where(whereClause)
       .orderBy(asc(booksTable.title))
       .offset(offset)
-      .limit(limit);
+      .limit(limit)
+      .all();
 
-    const [booksCount] = await tx.select({ count: count() }).from(booksTable).where(whereClause);
+    const [booksCount] = tx.select({ count: count() }).from(booksTable).where(whereClause).all();
 
     if (!booksCount) {
       throw new Error('Failed to count books');
@@ -140,8 +145,8 @@ export async function getBooksByTitle({
   });
 }
 
-export async function createChapter(data: ChapterInsert): Promise<ChapterSelect> {
-  const [chapter] = await db.insert(chaptersTable).values(data).returning();
+export function createChapter(data: ChapterInsert): ChapterSelect {
+  const [chapter] = db.insert(chaptersTable).values(data).returning().all();
 
   if (!chapter) {
     throw new Error('Failed to create chapter');
@@ -166,29 +171,26 @@ export async function createBook({
   description,
   image
 }: CreateBookParams): Promise<BookSelect> {
-  return db.transaction(async (tx) => {
+  // Insert image and book rows in a single sync transaction.
+  // S3 upload happens after the transaction since it's async.
+  const { book, imageToUpload } = db.transaction((tx) => {
     let imageId: string | undefined;
 
     if (image) {
-      const [createdImage] = await tx
+      const [createdImage] = tx
         .insert(imagesTable)
         .values({ content_type: image.contentType })
-        .returning();
+        .returning()
+        .all();
 
       if (!createdImage) {
         throw new Error('Failed to create image');
       }
 
-      await imageStorage.saveBuffer({
-        imageId: createdImage.id,
-        buffer: image.buffer,
-        contentType: image.contentType
-      });
-
       imageId = createdImage.id;
     }
 
-    const [book] = await tx
+    const [book] = tx
       .insert(booksTable)
       .values({
         title,
@@ -196,12 +198,22 @@ export async function createBook({
         description,
         image_id: imageId
       })
-      .returning();
+      .returning()
+      .all();
 
     if (!book) {
       throw new Error('Failed to create book');
     }
 
-    return book;
+    return {
+      book,
+      imageToUpload: image && imageId ? { imageId, buffer: image.buffer, contentType: image.contentType } : undefined
+    };
   });
+
+  if (imageToUpload) {
+    await imageStorage.saveBuffer(imageToUpload);
+  }
+
+  return book;
 }
