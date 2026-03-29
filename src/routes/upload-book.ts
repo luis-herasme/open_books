@@ -4,7 +4,9 @@ import { jsonContent } from 'stoker/openapi/helpers';
 import type { RouteHandler } from '@hono/zod-openapi';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 
+import type { AppEnv } from '../bindings.ts';
 import { createBook } from '../db/repository.ts';
+import { imageStorage } from '../lib/image-storage.ts';
 import { SupportedImageMimeType } from '../db/schema.ts';
 import { ErrorMessage } from '../lib/error-message-schema.ts';
 import { apiKeyRequired } from '../lib/api-key-required-middleware.ts';
@@ -77,9 +79,10 @@ export const uploadBookRoute = createRoute({
   }
 });
 
-export const uploadBookHandler: RouteHandler<typeof uploadBookRoute> = async (c) => {
+export const uploadBookHandler: RouteHandler<typeof uploadBookRoute, AppEnv> = async (c) => {
   const formData = await c.req.parseBody();
   const { title, author, description, image } = UploadBookInput.parse(formData);
+  const db = c.var.db;
 
   let imageBuffer: ImageBuffer | undefined;
 
@@ -88,11 +91,21 @@ export const uploadBookHandler: RouteHandler<typeof uploadBookRoute> = async (c)
   }
 
   const book = await createBook({
+    db,
     title,
     author,
     description,
     image: imageBuffer
   });
+
+  if (imageBuffer && book.image_id) {
+    await imageStorage.saveBuffer({
+      bucket: c.env.BUCKET,
+      imageId: book.image_id,
+      buffer: imageBuffer.buffer,
+      contentType: imageBuffer.contentType
+    });
+  }
 
   return c.json(
     {

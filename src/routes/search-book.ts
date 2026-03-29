@@ -4,6 +4,7 @@ import { jsonContent } from 'stoker/openapi/helpers';
 import type { RouteHandler } from '@hono/zod-openapi';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 
+import type { AppEnv } from '../bindings.ts';
 import { imageStorage } from '../lib/image-storage.ts';
 import { MAX_BOOKS_PER_PAGE } from '../constants.ts';
 import { getBooksByTitle } from '../db/repository.ts';
@@ -40,10 +41,12 @@ export const searchBookRoute = createRoute({
   }
 });
 
-export const searchBookHandler: RouteHandler<typeof searchBookRoute> = async (c) => {
+export const searchBookHandler: RouteHandler<typeof searchBookRoute, AppEnv> = async (c) => {
   const input = await c.req.valid('query');
+  const db = c.var.db;
 
   const { books, total } = await getBooksByTitle({
+    db,
     book_title: input.book_title,
     offset: input.skip,
     limit: input.take
@@ -55,7 +58,10 @@ export const searchBookHandler: RouteHandler<typeof searchBookRoute> = async (c)
         let imageUrl = null;
 
         if (book.image_id) {
-          imageUrl = imageStorage.getPublicUrl(book.image_id);
+          imageUrl = imageStorage.getPublicUrl({
+            publicUrl: c.env.R2_PUBLIC_URL,
+            imageId: book.image_id
+          });
         }
 
         return {
