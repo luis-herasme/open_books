@@ -1,0 +1,23 @@
+{
+  "name": "open-books-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-04-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "books-db",
+      "database_id": "LOCAL_PLACEHOLDER"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "books-images"
+    }
+  ],
+  "vars": {
+    "R2_PUBLIC_URL": "https://pub-xxx.r2.dev"
+  }
+  // API_KEY should be set as a secret via: wrangler secret put API_KEY
+}

@@ -5,6 +5,7 @@
     "moduleResolution": "Bundler",
     "noEmit": true,
     "allowImportingTsExtensions": true,
+    "types": ["@cloudflare/workers-types/2025.04.01"],
 
     /* Performance options */
     "skipLibCheck": true,
