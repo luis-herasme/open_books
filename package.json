@@ -5,26 +5,27 @@
     "typescript": "^5.7.3"
   },
   "scripts": {
-    "dev": "tsx watch --env-file=.env src/index.ts",
+    "dev": "wrangler dev",
     "test": "vitest run --reporter=verbose",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:local": "wrangler d1 migrations apply books-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply books-db --remote"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1019.0",
-    "@hono/node-server": "^1.19.7",
     "@hono/zod-openapi": "^1.2.0",
     "@scalar/hono-api-reference": "^0.9.30",
-    "better-sqlite3": "^12.8.0",
-    "dotenv": "^17.2.3",
     "drizzle-orm": "^0.45.1",
     "hono": "^4.11.2",
     "stoker": "^2.0.1",
     "zod": "^4.2.1"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.13",
+    "@cloudflare/vitest-pool-workers": "^0.8.0",
+    "@cloudflare/workers-types": "^4.20250313.0",
+    "@types/node": "^25.5.0",
     "drizzle-kit": "^0.31.8",
-    "tsx": "^4.21.0",
-    "vitest": "^3.2.3"
+    "vitest": "^3.2.3",
+    "wrangler": "^4.14.0"
   }
 }

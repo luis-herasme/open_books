@@ -4,6 +4,9 @@ import { jsonContent } from 'stoker/openapi/helpers';
 import type { RouteHandler } from '@hono/zod-openapi';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 
+import { drizzle } from 'drizzle-orm/d1';
+
+import type { AppEnv } from '../bindings.ts';
 import { createChapter } from '../db/repository.ts';
 import { ErrorMessage } from '../lib/error-message-schema.ts';
 import { apiKeyRequired } from '../lib/api-key-required-middleware.ts';
@@ -37,14 +40,19 @@ export const uploadChapterRoute = createRoute({
   }
 });
 
-export const uploadChapterHandler: RouteHandler<typeof uploadChapterRoute> = async (c) => {
+export const uploadChapterHandler: RouteHandler<typeof uploadChapterRoute, AppEnv> = async (c) => {
   const input = await c.req.valid('json');
 
+  const db = drizzle(c.env.DB);
+
   const chapter = await createChapter({
-    book_id: input.book_id,
-    title: input.title,
-    content: input.content,
-    number: input.number
+    db,
+    data: {
+      book_id: input.book_id,
+      title: input.title,
+      content: input.content,
+      number: input.number
+    }
   });
 
   return c.json(

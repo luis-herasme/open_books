@@ -1,8 +1,8 @@
 import { createMiddleware } from 'hono/factory';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
-import { timingSafeEqual } from 'crypto';
+import { timingSafeEqual } from 'node:crypto';
 
-import { env } from '../env.ts';
+import type { AppEnv } from '../bindings.ts';
 
 /**
  * Performs a constant-time comparison of two strings to prevent timing attacks.
@@ -21,7 +21,7 @@ function constantTimeCompare(a: string, b: string): boolean {
   return timingSafeEqual(bufferA, bufferB);
 }
 
-export const apiKeyRequired = createMiddleware(async (c, next) => {
+export const apiKeyRequired = createMiddleware<AppEnv>(async (c, next) => {
   const apiKey = c.req.header('x-api-key');
 
   if (!apiKey) {
@@ -33,7 +33,7 @@ export const apiKeyRequired = createMiddleware(async (c, next) => {
     );
   }
 
-  if (!constantTimeCompare(apiKey, env.API_KEY)) {
+  if (!constantTimeCompare(apiKey, c.env.API_KEY)) {
     return c.json(
       {
         message: 'Unauthorized'

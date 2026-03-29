@@ -4,6 +4,9 @@ import { jsonContent } from 'stoker/openapi/helpers';
 import type { RouteHandler } from '@hono/zod-openapi';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 
+import { drizzle } from 'drizzle-orm/d1';
+
+import type { AppEnv } from '../bindings.ts';
 import { getChapterById } from '../db/repository.ts';
 import { ErrorMessage } from '../lib/error-message-schema.ts';
 
@@ -28,9 +31,10 @@ export const getChapterRoute = createRoute({
   }
 });
 
-export const getChapterHandler: RouteHandler<typeof getChapterRoute> = async (c) => {
+export const getChapterHandler: RouteHandler<typeof getChapterRoute, AppEnv> = async (c) => {
   const input = await c.req.valid('query');
-  const chapter = await getChapterById(input.chapter_id);
+  const db = drizzle(c.env.DB);
+  const chapter = await getChapterById({ db, chapter_id: input.chapter_id });
 
   if (chapter === null) {
     return c.json(

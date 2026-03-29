@@ -1,27 +1,10 @@
-import { vi } from 'vitest';
-
-vi.mock('@aws-sdk/client-s3', () => {
-  return {
-    S3Client: vi.fn().mockImplementation(() => ({
-      send: vi.fn().mockResolvedValue({})
-    })),
-    PutObjectCommand: vi.fn()
-  };
-});
-
 import assert from 'node:assert';
 import { randomUUID } from 'node:crypto';
-import { testClient } from 'hono/testing';
 import { describe, it, expect, afterEach } from 'vitest';
 
-import { env } from '../env.ts';
-import { createApp } from '../app.ts';
-import { cleanupDatabase, TEST_IMAGE_FILE } from './test-helpers.ts';
+import { client, cleanupDatabase, TEST_IMAGE_FILE } from './test-helpers.ts';
 
 describe('POST /upload-book', () => {
-  const app = createApp();
-  const client = testClient(app);
-
   afterEach(cleanupDatabase);
 
   it('should create a book with only title', async () => {
@@ -35,7 +18,7 @@ describe('POST /upload-book', () => {
       },
       {
         headers: {
-          'x-api-key': env.API_KEY
+          'x-api-key': '1234'
         }
       }
     );
@@ -73,7 +56,7 @@ describe('POST /upload-book', () => {
       },
       {
         headers: {
-          'x-api-key': env.API_KEY
+          'x-api-key': '1234'
         }
       }
     );
@@ -110,7 +93,7 @@ describe('POST /upload-book', () => {
       },
       {
         headers: {
-          'x-api-key': env.API_KEY
+          'x-api-key': '1234'
         }
       }
     );

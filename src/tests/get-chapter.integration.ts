@@ -1,13 +1,8 @@
-import { testClient } from 'hono/testing';
 import { describe, it, expect, afterEach } from 'vitest';
 
-import { cleanupDatabase, createTestBook, createTestChapter } from './test-helpers.ts';
-import { createApp } from '../app.ts';
+import { app, client, env, cleanupDatabase, createTestBook, createTestChapter } from './test-helpers.ts';
 
 describe('GET /chapter', () => {
-  const app = createApp();
-  const client = testClient(app);
-
   afterEach(cleanupDatabase);
 
   it('should return chapter content when chapter exists', async () => {
@@ -46,13 +41,13 @@ describe('GET /chapter', () => {
   });
 
   it('should return 422 for invalid chapter_id format', async () => {
-    const response = await app.request('/chapter?chapter_id=invalid-uuid');
+    const response = await app.request('/chapter?chapter_id=invalid-uuid', undefined, env);
 
     expect(response.status).toBe(422);
   });
 
   it('should return 422 when chapter_id is missing', async () => {
-    const response = await app.request('/chapter');
+    const response = await app.request('/chapter', undefined, env);
 
     expect(response.status).toBe(422);
   });

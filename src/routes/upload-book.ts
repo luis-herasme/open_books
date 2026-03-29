@@ -4,6 +4,9 @@ import { jsonContent } from 'stoker/openapi/helpers';
 import type { RouteHandler } from '@hono/zod-openapi';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 
+import { drizzle } from 'drizzle-orm/d1';
+
+import type { AppEnv } from '../bindings.ts';
 import { createBook } from '../db/repository.ts';
 import { SupportedImageMimeType } from '../db/schema.ts';
 import { ErrorMessage } from '../lib/error-message-schema.ts';
@@ -77,9 +80,10 @@ export const uploadBookRoute = createRoute({
   }
 });
 
-export const uploadBookHandler: RouteHandler<typeof uploadBookRoute> = async (c) => {
+export const uploadBookHandler: RouteHandler<typeof uploadBookRoute, AppEnv> = async (c) => {
   const formData = await c.req.parseBody();
   const { title, author, description, image } = UploadBookInput.parse(formData);
+  const db = drizzle(c.env.DB);
 
   let imageBuffer: ImageBuffer | undefined;
 
@@ -88,11 +92,18 @@ export const uploadBookHandler: RouteHandler<typeof uploadBookRoute> = async (c)
   }
 
   const book = await createBook({
+    db,
     title,
     author,
     description,
     image: imageBuffer
   });
+
+  if (imageBuffer && book.image_id) {
+    await c.env.BUCKET.put(book.image_id, imageBuffer.buffer, {
+      httpMetadata: { contentType: imageBuffer.contentType }
+    });
+  }
 
   return c.json(
     {
