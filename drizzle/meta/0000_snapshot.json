@@ -1,74 +1,69 @@
 {
-  "id": "35b1aeeb-0bc8-4aa5-b7eb-d91aa17a84ca",
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "8e1e2b8f-3ea0-472f-b4f5-be89f61c6b43",
   "prevId": "00000000-0000-0000-0000-000000000000",
-  "version": "7",
-  "dialect": "postgresql",
   "tables": {
-    "public.books": {
+    "books": {
       "name": "books",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": true,
           "notNull": true,
-          "default": "gen_random_uuid()"
+          "autoincrement": false
         },
         "title": {
           "name": "title",
-          "type": "varchar(1000)",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "author": {
           "name": "author",
-          "type": "varchar(1000)",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "description": {
           "name": "description",
-          "type": "varchar(1000000)",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "image_id": {
           "name": "image_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         }
       },
       "indexes": {
         "books_title_idx": {
           "name": "books_title_idx",
           "columns": [
-            {
-              "expression": "title",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
+            "title"
           ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -88,75 +83,76 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.chapters": {
+    "chapters": {
       "name": "chapters",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": true,
           "notNull": true,
-          "default": "gen_random_uuid()"
+          "autoincrement": false
         },
         "book_id": {
           "name": "book_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "number": {
           "name": "number",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "title": {
           "name": "title",
-          "type": "varchar(1000)",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "content": {
           "name": "content",
-          "type": "varchar(1000000)",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         }
       },
       "indexes": {
+        "chapters_book_id_number_unique": {
+          "name": "chapters_book_id_number_unique",
+          "columns": [
+            "book_id",
+            "number"
+          ],
+          "isUnique": true
+        },
         "chapters_book_id_idx": {
           "name": "chapters_book_id_idx",
           "columns": [
-            {
-              "expression": "book_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
+            "book_id"
           ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -175,80 +171,56 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "chapters_book_id_number_unique": {
-          "name": "chapters_book_id_number_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "book_id",
-            "number"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
-    "public.images": {
+    "images": {
       "name": "images",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": true,
           "notNull": true,
-          "default": "gen_random_uuid()"
+          "autoincrement": false
         },
         "content_type": {
           "name": "content_type",
-          "type": "image_content_type",
-          "typeSchema": "public",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     }
   },
-  "enums": {
-    "public.image_content_type": {
-      "name": "image_content_type",
-      "schema": "public",
-      "values": [
-        "image/png",
-        "image/jpeg"
-      ]
-    }
-  },
-  "schemas": {},
-  "sequences": {},
-  "roles": {},
-  "policies": {},
   "views": {},
+  "enums": {},
   "_meta": {
-    "columns": {},
     "schemas": {},
-    "tables": {}
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
   }
 }
